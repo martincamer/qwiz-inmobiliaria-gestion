@@ -1,0 +1,335 @@
+{
+  "_id": "507f1f77bcf86cd799439011",
+  "id": "cliente-uuid-12345",
+  "tipoPersona": "fisica",
+  "nombreCompleto": "Juan Carlos Pérez González",
+  "dni": "12345678",
+  "fechaNacimiento": "1985-03-15T00:00:00.000Z",
+  "nacionalidad": "Argentina",
+  "estadoCivil": "casado",
+  "profesion": "Contador Público",
+  "datosFiscales": {
+    "condicionIva": "responsable_inscripto",
+    "cuit": "20-12345678-9",
+    "ingresosBrutos": {
+      "numero": "901-123456-7",
+      "jurisdiccion": "CABA",
+      "condicion": "inscripto"
+    },
+    "actividadPrincipal": {
+      "codigo": "749190",
+      "descripcion": "Servicios de consultoría contable"
+    }
+  },
+
+  "contacto": {
+    "telefono": "011-4567-8901",
+    "celular": "011-15-2345-6789",
+    "email": "juan.perez@email.com",
+    "sitioWeb": "www.contadorperez.com.ar"
+  },
+
+  "direccionFiscal": {
+    "calle": "Av. Corrientes",
+    "numero": "1234",
+    "piso": "5",
+    "departamento": "B",
+    "localidad": "Ciudad Autónoma de Buenos Aires",
+    "provincia": "CABA",
+    "codigoPostal": "C1043AAZ",
+    "pais": "Argentina"
+  },
+
+  "direccionComercial": {
+    "calle": "Av. Santa Fe",
+    "numero": "2567",
+    "piso": "3",
+    "departamento": "A",
+    "localidad": "Ciudad Autónoma de Buenos Aires",
+    "provincia": "CABA",
+    "codigoPostal": "C1123AAB",
+    "pais": "Argentina"
+  },
+
+  "estado": "activo",
+
+  "configuracionComercial": {
+    "limiteCredito": 500000,
+    "diasCredito": 30,
+    "descuentoGeneral": 5,
+    "vendedorAsignado": "507f1f77bcf86cd799439012",
+    "observacionesComerciales": "Cliente preferencial, pago puntual"
+  },
+
+  "saldoActual": 125000,
+  "saldoAnterior": 95000,
+
+  "facturas": [
+    {
+      "id": "factura-uuid-001",
+      "numero": "0001-00000123",
+      "tipo": "A",
+      "fecha": "2024-01-15T00:00:00.000Z",
+      "fechaVencimiento": "2024-02-15T00:00:00.000Z",
+      "subtotal": 100000,
+      "iva": 21000,
+      "total": 121000,
+      "estado": "pendiente",
+      "concepto": "Servicios de consultoría contable - Enero 2024",
+      "observaciones": "Incluye asesoramiento fiscal y laboral",
+      "items": [
+        {
+          "descripcion": "Consultoría contable mensual",
+          "cantidad": 1,
+          "precioUnitario": 80000,
+          "subtotal": 80000
+        },
+        {
+          "descripcion": "Asesoramiento fiscal",
+          "cantidad": 1,
+          "precioUnitario": 20000,
+          "subtotal": 20000
+        }
+      ],
+      "createdBy": "507f1f77bcf86cd799439013",
+      "createdAt": "2024-01-15T10:30:00.000Z",
+      "updatedAt": "2024-01-15T10:30:00.000Z"
+    },
+    {
+      "id": "factura-uuid-002",
+      "numero": "0001-00000124",
+      "tipo": "A",
+      "fecha": "2024-02-15T00:00:00.000Z",
+      "fechaVencimiento": "2024-03-15T00:00:00.000Z",
+      "subtotal": 75000,
+      "iva": 15750,
+      "total": 90750,
+      "estado": "pagada",
+      "concepto": "Servicios de consultoría contable - Febrero 2024",
+      "observaciones": "Liquidación de sueldos incluida",
+      "items": [
+        {
+          "descripcion": "Consultoría contable mensual",
+          "cantidad": 1,
+          "precioUnitario": 75000,
+          "subtotal": 75000
+        }
+      ],
+      "createdBy": "507f1f77bcf86cd799439013",
+      "createdAt": "2024-02-15T09:15:00.000Z",
+      "updatedAt": "2024-02-20T14:22:00.000Z"
+    }
+  ],
+
+  "presupuestos": [
+    {
+      "id": "presupuesto-uuid-001",
+      "numero": "PRES-2024-001",
+      "fecha": "2024-01-10T00:00:00.000Z",
+      "fechaVencimiento": "2024-02-10T00:00:00.000Z",
+      "subtotal": 150000,
+      "iva": 31500,
+      "total": 181500,
+      "estado": "aprobado",
+      "concepto": "Implementación sistema contable",
+      "observaciones": "Incluye capacitación del personal",
+      "items": [
+        {
+          "descripcion": "Análisis y diseño del sistema",
+          "cantidad": 1,
+          "precioUnitario": 80000,
+          "subtotal": 80000
+        },
+        {
+          "descripcion": "Implementación y configuración",
+          "cantidad": 1,
+          "precioUnitario": 50000,
+          "subtotal": 50000
+        },
+        {
+          "descripcion": "Capacitación del personal",
+          "cantidad": 1,
+          "precioUnitario": 20000,
+          "subtotal": 20000
+        }
+      ],
+      "createdBy": "507f1f77bcf86cd799439013",
+      "createdAt": "2024-01-10T11:45:00.000Z",
+      "updatedAt": "2024-01-12T16:30:00.000Z"
+    }
+  ],
+
+  "cuentaCorriente": [
+    {
+      "id": "movimiento-uuid-001",
+      "tipo": "debe",
+      "concepto": "factura",
+      "monto": 121000,
+      "fecha": "2024-01-15T00:00:00.000Z",
+      "descripcion": "Factura 0001-00000123",
+      "referencia": {
+        "tipo": "factura",
+        "id": "factura-uuid-001",
+        "numero": "0001-00000123"
+      },
+      "saldoAnterior": 0,
+      "saldoActual": 121000,
+      "createdBy": "507f1f77bcf86cd799439013",
+      "createdAt": "2024-01-15T10:30:00.000Z",
+      "updatedAt": "2024-01-15T10:30:00.000Z"
+    },
+    {
+      "id": "movimiento-uuid-002",
+      "tipo": "haber",
+      "concepto": "pago_bancario",
+      "monto": 50000,
+      "fecha": "2024-01-20T00:00:00.000Z",
+      "descripcion": "Pago transferencia - Anticipo factura 123",
+      "saldoAnterior": 121000,
+      "saldoActual": 71000,
+      "createdBy": "507f1f77bcf86cd799439013",
+      "createdAt": "2024-01-20T15:45:00.000Z",
+      "updatedAt": "2024-01-20T15:45:00.000Z"
+    },
+    {
+      "id": "movimiento-uuid-003",
+      "tipo": "debe",
+      "concepto": "factura",
+      "monto": 90750,
+      "fecha": "2024-02-15T00:00:00.000Z",
+      "descripcion": "Factura 0001-00000124",
+      "referencia": {
+        "tipo": "factura",
+        "id": "factura-uuid-002",
+        "numero": "0001-00000124"
+      },
+      "saldoAnterior": 71000,
+      "saldoActual": 161750,
+      "createdBy": "507f1f77bcf86cd799439013",
+      "createdAt": "2024-02-15T09:15:00.000Z",
+      "updatedAt": "2024-02-15T09:15:00.000Z"
+    },
+    {
+      "id": "movimiento-uuid-004",
+      "tipo": "haber",
+      "concepto": "pago_cheque",
+      "monto": 90750,
+      "fecha": "2024-02-20T00:00:00.000Z",
+      "descripcion": "Pago cheque tercero N° 12345678 - Cancelación factura 124",
+      "saldoAnterior": 161750,
+      "saldoActual": 71000,
+      "createdBy": "507f1f77bcf86cd799439013",
+      "createdAt": "2024-02-20T14:22:00.000Z",
+      "updatedAt": "2024-02-20T14:22:00.000Z"
+    }
+  ],
+
+  "pagosEfectivo": [
+    {
+      "id": "pago-efectivo-uuid-001",
+      "monto": 25000,
+      "fecha": "2024-01-25T00:00:00.000Z",
+      "concepto": "Pago parcial factura 123",
+      "observaciones": "Pago en billetes de $1000",
+      "recibo": {
+        "numero": "REC-001-2024",
+        "fecha": "2024-01-25T00:00:00.000Z"
+      },
+      "createdBy": "507f1f77bcf86cd799439013",
+      "createdAt": "2024-01-25T16:30:00.000Z",
+      "updatedAt": "2024-01-25T16:30:00.000Z"
+    }
+  ],
+
+  "pagosBancarios": [
+    {
+      "id": "pago-bancario-uuid-001",
+      "monto": 50000,
+      "fecha": "2024-01-20T00:00:00.000Z",
+      "tipo": "transferencia",
+      "banco": "Banco Nación",
+      "numeroCuenta": "1234567890",
+      "numeroOperacion": "TRF-20240120-001",
+      "concepto": "Anticipo factura 123",
+      "observaciones": "Transferencia desde cuenta corriente",
+      "comprobante": {
+        "numero": "COMP-001-2024",
+        "fecha": "2024-01-20T00:00:00.000Z"
+      },
+      "createdBy": "507f1f77bcf86cd799439013",
+      "createdAt": "2024-01-20T15:45:00.000Z",
+      "updatedAt": "2024-01-20T15:45:00.000Z"
+    },
+    {
+      "id": "pago-bancario-uuid-002",
+      "monto": 30000,
+      "fecha": "2024-02-10T00:00:00.000Z",
+      "tipo": "debito_automatico",
+      "banco": "Banco Santander",
+      "numeroCuenta": "9876543210",
+      "numeroOperacion": "DEB-20240210-002",
+      "concepto": "Pago servicios mensuales",
+      "observaciones": "Débito automático autorizado",
+      "comprobante": {
+        "numero": "COMP-002-2024",
+        "fecha": "2024-02-10T00:00:00.000Z"
+      },
+      "createdBy": "507f1f77bcf86cd799439013",
+      "createdAt": "2024-02-10T08:00:00.000Z",
+      "updatedAt": "2024-02-10T08:00:00.000Z"
+    }
+  ],
+
+  "pagosCheques": [
+    {
+      "id": "pago-cheque-uuid-001",
+      "monto": 90750,
+      "fecha": "2024-02-20T00:00:00.000Z",
+      "tipo": "tercero",
+      "numero": "12345678",
+      "banco": "Banco Galicia",
+      "fechaEmision": "2024-02-18T00:00:00.000Z",
+      "fechaVencimiento": "2024-03-20T00:00:00.000Z",
+      "estado": "entregado",
+      "emisor": {
+        "nombre": "Empresa ABC S.A.",
+        "cuit": "30-12345678-9"
+      },
+      "concepto": "Cancelación factura 124",
+      "observaciones": "Cheque diferido a 30 días",
+      "chequeraId": "507f1f77bcf86cd799439014",
+      "createdBy": "507f1f77bcf86cd799439013",
+      "createdAt": "2024-02-20T14:22:00.000Z",
+      "updatedAt": "2024-02-20T14:22:00.000Z"
+    },
+    {
+      "id": "pago-cheque-uuid-002",
+      "monto": 45000,
+      "fecha": "2024-03-01T00:00:00.000Z",
+      "tipo": "propio",
+      "numero": "87654321",
+      "banco": "Banco BBVA",
+      "fechaEmision": "2024-03-01T00:00:00.000Z",
+      "fechaVencimiento": "2024-03-01T00:00:00.000Z",
+      "estado": "cobrado",
+      "emisor": {
+        "nombre": "Juan Carlos Pérez González",
+        "cuit": "20-12345678-9"
+      },
+      "concepto": "Pago servicios varios",
+      "observaciones": "Cheque al día",
+      "chequeraId": "507f1f77bcf86cd799439015",
+      "createdBy": "507f1f77bcf86cd799439013",
+      "createdAt": "2024-03-01T10:15:00.000Z",
+      "updatedAt": "2024-03-01T10:15:00.000Z"
+    }
+  ],
+
+  "companyId": "company-uuid-12345",
+  "userId": "507f1f77bcf86cd799439016",
+  "createdBy": "507f1f77bcf86cd799439013",
+  "lastModifiedBy": "507f1f77bcf86cd799439013",
+  "createdAt": "2024-01-01T00:00:00.000Z",
+  "updatedAt": "2024-03-01T10:15:00.000Z",
+  "__v": 0
+}

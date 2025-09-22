@@ -1,17 +1,11 @@
 import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button.tsx";
 import {
-  Building2,
   LayoutDashboard,
-  Package,
-  ShoppingCart,
-  Users,
-  CreditCard,
-  Settings,
   LogOut,
   Menu,
   X,
-  Wallet,
+  Users,
 } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -25,13 +19,7 @@ const PrivateLayout = () => {
 
   const navigation = [
     { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-    { name: "Cajas", href: "/cashboxes", icon: Wallet },
-    { name: "Chequeras", href: "/chequeras", icon: CreditCard },
-    { name: "Inventario", href: "/inventory", icon: Package },
-    { name: "Compras", href: "/purchases", icon: ShoppingCart },
-    { name: "Clientes", href: "/customers", icon: Users },
-    { name: "Cuentas Corrientes", href: "/accounts", icon: CreditCard },
-    { name: "Configuración", href: "/settings", icon: Settings },
+    { name: "Propietarios", href: "/dashboard/propietarios", icon: Users },
   ];
 
   const handleLogout = () => {

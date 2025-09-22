@@ -41,7 +41,12 @@ const Register = () => {
     email: "",
     phone: "",
     company: "",
-    companySize: "",
+    slug: "",
+    companyType: "",
+    realEstateType: "residential",
+    agentCount: 1,
+    licenseNumber: "",
+    userType: "owner",
     cuit: "",
     businessName: "",
     taxCategory: "",
@@ -59,12 +64,31 @@ const Register = () => {
   const navigate = useNavigate();
   const { register, isLoading: authLoading } = useAuth();
 
-  const companySizes = [
-    { value: "1-5", label: "1-5 empleados" },
-    { value: "6-20", label: "6-20 empleados" },
-    { value: "21-50", label: "21-50 empleados" },
-    { value: "51-100", label: "51-100 empleados" },
-    { value: "100+", label: "Más de 100 empleados" },
+  const companyTypes = [
+    { value: "individual", label: "Agente individual" },
+    { value: "small", label: "Inmobiliaria pequeña (2-10 agentes)" },
+    { value: "medium", label: "Inmobiliaria mediana (11-25 agentes)" },
+    { value: "large", label: "Inmobiliaria grande (26-50 agentes)" },
+    { value: "enterprise", label: "Red inmobiliaria (50+ agentes)" },
+    { value: "franchise", label: "Franquicia inmobiliaria" },
+  ];
+
+  const realEstateTypes = [
+    { value: "residential", label: "Residencial" },
+    { value: "commercial", label: "Comercial" },
+    { value: "industrial", label: "Industrial" },
+    { value: "mixed", label: "Mixto" },
+    { value: "luxury", label: "Lujo" },
+    { value: "rural", label: "Rural" },
+  ];
+
+  const userTypes = [
+    { value: "owner", label: "Propietario" },
+    { value: "manager", label: "Gerente" },
+    { value: "agent", label: "Agente" },
+    { value: "assistant", label: "Asistente" },
+    { value: "accountant", label: "Contador" },
+    { value: "collaborator", label: "Colaborador" },
   ];
 
   const taxCategories = [
@@ -85,11 +109,31 @@ const Register = () => {
     if (success) setSuccess("");
   };
 
-  const handleSelectChange = (value) => {
+  const handleSelectChange = (name, value) => {
     setFormData((prev) => ({
       ...prev,
-      companySize: value,
+      [name]: value,
     }));
+  };
+
+  const generateSlug = (companyName) => {
+    return companyName
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .trim('-');
+  };
+
+  const handleCompanyNameChange = (e) => {
+    const { value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      company: value,
+      slug: generateSlug(value),
+    }));
+    if (error) setError("");
+    if (success) setSuccess("");
   };
 
   const handleCheckboxChange = (name, checked) => {
@@ -109,11 +153,23 @@ const Register = () => {
     }
 
     if (!formData.company) {
-      return "Por favor, ingresa el nombre de tu empresa";
+      return "Por favor, ingresa el nombre de tu inmobiliaria";
     }
 
-    if (!formData.companySize) {
-      return "Por favor, selecciona el tamaño de tu empresa";
+    if (!formData.companyType) {
+      return "Por favor, selecciona el tipo de inmobiliaria";
+    }
+
+    if (!formData.realEstateType) {
+      return "Por favor, selecciona el tipo de negocio inmobiliario";
+    }
+
+    if (!formData.userType) {
+      return "Por favor, selecciona tu rol en la inmobiliaria";
+    }
+
+    if (formData.agentCount < 1) {
+      return "El número de agentes debe ser al menos 1";
     }
 
     if (!formData.password || formData.password.length < 6) {
@@ -128,7 +184,7 @@ const Register = () => {
       return "Debes aceptar los términos y condiciones";
     }
 
-    // Los campos de AFIP son opcionales por ahora
+    // Los campos de AFIP son completamente opcionales
 
     return null;
   };
@@ -154,10 +210,20 @@ const Register = () => {
         email: formData.email,
         phone: formData.phone,
         company: formData.company,
-        companySize: formData.companySize,
+        slug: formData.slug,
+        companyType: formData.companyType,
+        realEstateType: formData.realEstateType,
+        agentCount: formData.agentCount,
+        licenseNumber: formData.licenseNumber,
+        userType: formData.userType,
         password: formData.password,
         acceptTerms: formData.acceptTerms,
         acceptMarketing: formData.acceptMarketing,
+        // Datos AFIP opcionales
+        cuit: formData.cuit,
+        businessName: formData.businessName,
+        taxCategory: formData.taxCategory,
+        startDate: formData.startDate,
       });
 
       setSuccess("¡Cuenta creada exitosamente! Redirigiendo al login...");
@@ -183,12 +249,39 @@ const Register = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-white px-4 py-8 relative overflow-hidden">
-      {/* Background blur effects */}
-      <div className="absolute inset-0">
-        <div className="absolute top-1/6 left-1/6 w-96 h-96 bg-rose-300/30 rounded-full blur-3xl"></div>
-        <div className="absolute top-1/5 right-1/6 w-80 h-80 bg-pink-400/20 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-1/5 left-1/5 w-72 h-72 bg-rose-500/25 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-1/6 right-1/5 w-64 h-64 bg-rose-400/20 rounded-full blur-3xl"></div>
+      {/* Background pattern with lines */}
+      <div
+        className="absolute inset-0 opacity-30"
+        style={{
+          background: `
+          linear-gradient(45deg, transparent 49%, rgba(156, 163, 175, 0.3) 49%, rgba(156, 163, 175, 0.3) 51%, transparent 51%),
+          linear-gradient(-45deg, transparent 49%, rgba(156, 163, 175, 0.2) 49%, rgba(156, 163, 175, 0.2) 51%, transparent 51%)
+        `,
+          backgroundSize: "20px 20px",
+        }}
+      >
+        {/* Diagonal lines */}
+        <div className="absolute inset-0 transform rotate-45">
+          <div className="w-full h-0.5 bg-gray-300 absolute top-1/4"></div>
+          <div className="w-full h-0.5 bg-gray-300 absolute top-2/4"></div>
+          <div className="w-full h-0.5 bg-gray-300 absolute top-3/4"></div>
+        </div>
+
+        {/* Vertical lines */}
+        <div className="absolute inset-0">
+          <div className="h-full w-0.5 bg-gray-200 absolute left-1/4"></div>
+          <div className="h-full w-0.5 bg-gray-200 absolute left-1/3"></div>
+          <div className="h-full w-0.5 bg-gray-200 absolute left-2/3"></div>
+          <div className="h-full w-0.5 bg-gray-200 absolute left-3/4"></div>
+        </div>
+
+        {/* Horizontal lines */}
+        <div className="absolute inset-0">
+          <div className="w-full h-0.5 bg-gray-200 absolute top-1/4"></div>
+          <div className="w-full h-0.5 bg-gray-200 absolute top-1/3"></div>
+          <div className="w-full h-0.5 bg-gray-200 absolute top-2/3"></div>
+          <div className="w-full h-0.5 bg-gray-200 absolute top-3/4"></div>
+        </div>
       </div>
       <div className="w-full max-w-2xl space-y-8 relative z-10">
         {/* Logo y título */}
@@ -198,7 +291,7 @@ const Register = () => {
           </Link>
           <h1 className="text-3xl font-bold text-foreground">Crear Cuenta</h1>
           <p className="text-muted-foreground mt-2">
-            Comienza a gestionar tu empresa de manera inteligente
+            Únete al CRM inmobiliario líder y potencia tu negocio
           </p>
         </div>
 
@@ -206,10 +299,11 @@ const Register = () => {
         <Card>
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl text-center">
-              Registro Gratuito
+              Registro Gratuito - CRM Inmobiliario
             </CardTitle>
             <CardDescription className="text-center">
-              Completa la información para crear tu cuenta
+              Completa la información para crear tu cuenta y comenzar a
+              gestionar propiedades
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -285,7 +379,7 @@ const Register = () => {
                         id="email"
                         name="email"
                         type="email"
-                        placeholder="tu@empresa.com"
+                        placeholder="tu@inmobiliaria.com"
                         value={formData.email}
                         onChange={handleInputChange}
                         className="pl-10"
@@ -318,22 +412,22 @@ const Register = () => {
               {/* Información de la empresa */}
               <div className="space-y-4">
                 <h3 className="text-lg font-medium text-foreground">
-                  Información de la Empresa
+                  Información de la Inmobiliaria
                 </h3>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Empresa */}
                   <div className="space-y-2">
-                    <Label htmlFor="company">Nombre de la Empresa *</Label>
+                    <Label htmlFor="company">Nombre de la Inmobiliaria *</Label>
                     <div className="relative">
                       <Building className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                       <Input
                         id="company"
                         name="company"
                         type="text"
-                        placeholder="Mi Empresa S.A."
+                        placeholder="Inmobiliaria Premium S.A."
                         value={formData.company}
-                        onChange={handleInputChange}
+                        onChange={handleCompanyNameChange}
                         className="pl-10"
                         disabled={isLoading}
                         required
@@ -341,104 +435,121 @@ const Register = () => {
                     </div>
                   </div>
 
-                  {/* Tamaño de empresa */}
+                  {/* Slug */}
                   <div className="space-y-2">
-                    <Label htmlFor="companySize">Tamaño de la Empresa *</Label>
-                    <Select
-                      onValueChange={handleSelectChange}
-                      disabled={isLoading}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecciona el tamaño" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {companySizes.map((size) => (
-                          <SelectItem key={size.value} value={size.value}>
-                            {size.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              </div>
-
-              {/* Datos de AFIP */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-medium text-foreground">
-                  Datos de AFIP (Opcional)
-                </h3>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* CUIT */}
-                  <div className="space-y-2">
-                    <Label htmlFor="cuit">CUIT</Label>
+                    <Label htmlFor="slug">URL de la Inmobiliaria</Label>
                     <div className="relative">
                       <Building2 className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                       <Input
-                        id="cuit"
-                        name="cuit"
+                        id="slug"
+                        name="slug"
                         type="text"
-                        placeholder="XX-XXXXXXXX-X"
-                        value={formData.cuit}
+                        placeholder="inmobiliaria-premium"
+                        value={formData.slug}
                         onChange={handleInputChange}
                         className="pl-10"
                         disabled={isLoading}
                       />
                     </div>
-                  </div>
-
-                  {/* Razón Social */}
-                  <div className="space-y-2">
-                    <Label htmlFor="businessName">Razón Social</Label>
-                    <div className="relative">
-                      <Building className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="businessName"
-                        name="businessName"
-                        type="text"
-                        placeholder="Razón social de la empresa"
-                        value={formData.businessName}
-                        onChange={handleInputChange}
-                        className="pl-10"
-                        disabled={isLoading}
-                      />
-                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Se generará automáticamente basado en el nombre
+                    </p>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Categoría Fiscal */}
+                  {/* Tipo de inmobiliaria */}
                   <div className="space-y-2">
-                    <Label htmlFor="taxCategory">Categoría Fiscal</Label>
+                    <Label htmlFor="companyType">Tipo de Inmobiliaria *</Label>
                     <Select
-                      onValueChange={(value) => setFormData(prev => ({ ...prev, taxCategory: value }))}
+                      onValueChange={(value) => handleSelectChange("companyType", value)}
                       disabled={isLoading}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Selecciona la categoría" />
+                        <SelectValue placeholder="Selecciona el tipo" />
                       </SelectTrigger>
                       <SelectContent>
-                        {taxCategories.map((category) => (
-                          <SelectItem key={category.value} value={category.value}>
-                            {category.label}
+                        {companyTypes.map((type) => (
+                          <SelectItem key={type.value} value={type.value}>
+                            {type.label}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                   </div>
 
-                  {/* Fecha de Inicio de Actividades */}
+                  {/* Tipo de negocio inmobiliario */}
                   <div className="space-y-2">
-                    <Label htmlFor="startDate">Fecha de Inicio de Actividades</Label>
+                    <Label htmlFor="realEstateType">Tipo de Negocio *</Label>
+                    <Select
+                      onValueChange={(value) => handleSelectChange("realEstateType", value)}
+                      disabled={isLoading}
+                      defaultValue="residential"
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecciona el tipo de negocio" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {realEstateTypes.map((type) => (
+                          <SelectItem key={type.value} value={type.value}>
+                            {type.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {/* Número de agentes */}
+                  <div className="space-y-2">
+                    <Label htmlFor="agentCount">Número de Agentes *</Label>
                     <Input
-                      id="startDate"
-                      name="startDate"
-                      type="date"
-                      value={formData.startDate}
+                      id="agentCount"
+                      name="agentCount"
+                      type="number"
+                      min="1"
+                      placeholder="1"
+                      value={formData.agentCount}
+                      onChange={handleInputChange}
+                      disabled={isLoading}
+                      required
+                    />
+                  </div>
+
+                  {/* Número de licencia */}
+                  <div className="space-y-2">
+                    <Label htmlFor="licenseNumber">Número de Licencia</Label>
+                    <Input
+                      id="licenseNumber"
+                      name="licenseNumber"
+                      type="text"
+                      placeholder="LIC-12345"
+                      value={formData.licenseNumber}
                       onChange={handleInputChange}
                       disabled={isLoading}
                     />
+                  </div>
+
+                  {/* Rol del usuario */}
+                  <div className="space-y-2">
+                    <Label htmlFor="userType">Tu Rol *</Label>
+                    <Select
+                      onValueChange={(value) => handleSelectChange("userType", value)}
+                      disabled={isLoading}
+                      defaultValue="owner"
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecciona tu rol" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {userTypes.map((type) => (
+                          <SelectItem key={type.value} value={type.value}>
+                            {type.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
               </div>

@@ -7,6 +7,7 @@ import {
 
 // Context
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import { OwnersProvider } from "./contexts/OwnersContext";
 
 // Hooks
 import useDocumentTitle from "./hooks/useDocumentTitle";
@@ -17,7 +18,10 @@ import PrivateLayout from "./layouts/PrivateLayout";
 
 // Pages
 import Home from "./pages/public/Home";
+import Login from "./pages/public/Login";
+import Register from "./pages/public/Register";
 import Dashboard from "./pages/private/Dashboard";
+import Owners from "./pages/private/Owners";
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -55,7 +59,7 @@ const AppRoutes = () => {
 
   return (
     <Routes>
-      {/* Public Route */}
+      {/* Public Routes */}
       <Route
         path="/"
         element={
@@ -67,6 +71,24 @@ const AppRoutes = () => {
         <Route index element={<Home />} />
       </Route>
 
+      {/* Auth Routes */}
+      <Route
+        path="/login"
+        element={
+          <PublicRoute>
+            <Login />
+          </PublicRoute>
+        }
+      />
+      <Route
+        path="/register"
+        element={
+          <PublicRoute>
+            <Register />
+          </PublicRoute>
+        }
+      />
+
       {/* Private Route */}
       <Route
         path="/dashboard"
@@ -77,6 +99,7 @@ const AppRoutes = () => {
         }
       >
         <Route index element={<Dashboard />} />
+        <Route path="propietarios" element={<Owners />} />
       </Route>
 
       {/* Catch all route */}
@@ -89,11 +112,13 @@ const AppRoutes = () => {
 function App() {
   return (
     <AuthProvider>
-      <Router>
-        <div className="App">
-          <AppRoutes />
-        </div>
-      </Router>
+      <OwnersProvider>
+        <Router>
+          <div className="App">
+            <AppRoutes />
+          </div>
+        </Router>
+      </OwnersProvider>
     </AuthProvider>
   );
 }

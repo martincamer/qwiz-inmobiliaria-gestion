@@ -32,6 +32,18 @@ const userSchema = new mongoose.Schema(
       enum: ["admin", "user", "accountant"],
       default: "user",
     },
+    userType: {
+      type: String,
+      enum: [
+        "owner", // Propietario de la inmobiliaria
+        "manager", // Gerente
+        "agent", // Agente inmobiliario
+        "assistant", // Asistente
+        "accountant", // Contador
+        "collaborator" // Colaborador general
+      ],
+      default: "owner",
+    },
     isActive: {
       type: Boolean,
       default: true,
@@ -68,19 +80,54 @@ const userSchema = new mongoose.Schema(
       },
       name: {
         type: String,
-        required: [true, "El nombre de la empresa es requerido"],
+        required: [true, "El nombre de la inmobiliaria es requerido"],
         trim: true,
         maxlength: [
           100,
-          "El nombre de la empresa no puede exceder 100 caracteres",
+          "El nombre de la inmobiliaria no puede exceder 100 caracteres",
         ],
       },
-      size: {
+      slug: {
         type: String,
-        enum: ["1-5", "6-20", "21-50", "51-100", "100+"],
-        required: [true, "El tamaño de la empresa es requerido"],
+        unique: true,
+        trim: true,
+        lowercase: true,
+        match: [
+          /^[a-z0-9-]+$/,
+          "El slug solo puede contener letras minúsculas, números y guiones",
+        ],
+        maxlength: [50, "El slug no puede exceder 50 caracteres"],
       },
-      industry: {
+      type: {
+        type: String,
+        enum: [
+          "individual", 
+          "small", 
+          "medium", 
+          "large", 
+          "enterprise",
+          "franchise"
+        ],
+        required: [true, "El tipo de inmobiliaria es requerido"],
+      },
+      realEstateType: {
+        type: String,
+        enum: [
+          "residential", // Residencial
+          "commercial", // Comercial
+          "industrial", // Industrial
+          "mixed", // Mixto
+          "luxury", // Lujo
+          "rural" // Rural
+        ],
+        default: "residential",
+      },
+      agentCount: {
+        type: Number,
+        min: [1, "Debe tener al menos 1 agente"],
+        default: 1,
+      },
+      licenseNumber: {
         type: String,
         trim: true,
       },
@@ -138,9 +185,6 @@ const userSchema = new mongoose.Schema(
       monotributoCategory: {
         type: String,
         enum: ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L"],
-        required: function () {
-          return this.afipData.taxCategory === "Monotributista";
-        },
       },
       activityCode: {
         type: String,
@@ -272,9 +316,44 @@ userSchema.pre("save", async function (next) {
   next();
 });
 
+// Middleware para generar slug automáticamente
+userSchema.pre("save", async function (next) {
+  // Generar slug si no existe y hay nombre de empresa
+  if (this.company.name && !this.company.slug) {
+    this.generateSlug();
+    
+    // Verificar si el slug ya existe y agregar número si es necesario
+    let slugExists = await this.constructor.findOne({ "company.slug": this.company.slug });
+    let counter = 1;
+    let originalSlug = this.company.slug;
+    
+    while (slugExists && slugExists._id.toString() !== this._id.toString()) {
+      this.company.slug = `${originalSlug}-${counter}`;
+      slugExists = await this.constructor.findOne({ "company.slug": this.company.slug });
+      counter++;
+    }
+  }
+  next();
+});
+
 // Método para comparar contraseñas
 userSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
+};
+
+// Método para generar slug automáticamente
+userSchema.methods.generateSlug = function () {
+  if (!this.company.slug && this.company.name) {
+    let baseSlug = this.company.name
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, '') // Remover caracteres especiales
+      .replace(/\s+/g, '-') // Reemplazar espacios con guiones
+      .replace(/-+/g, '-') // Reemplazar múltiples guiones con uno solo
+      .trim('-'); // Remover guiones al inicio y final
+    
+    this.company.slug = baseSlug;
+  }
+  return this.company.slug;
 };
 
 // Método para obtener datos públicos del usuario

@@ -6,10 +6,10 @@ import dotenv from "dotenv";
 import connectDB from "./src/config/database.js";
 import authRoutes from "./src/routes/authRoutes.js";
 import userRoutes from "./src/routes/userRoutes.js";
-import cashBoxRoutes from "./src/routes/cashBoxRoutes.js";
-import chequeraRoutes from "./src/routes/chequeraRoutes.js";
-import clienteRoutes from "./src/routes/clienteRoutes.js";
-import counterRoutes from "./src/routes/counterRoutes.js";
+import tenantRoutes from "./src/routes/tenantRoutes.js";
+import ownerRoutes from "./src/routes/ownerRoutes.js";
+import propertyRoutes from "./src/routes/propertyRoutes.js";
+import saleRoutes from "./src/routes/saleRoutes.js";
 
 import { errorHandler } from "./src/middleware/errorHandler.js";
 import { notFound } from "./src/middleware/notFound.js";
@@ -55,10 +55,10 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 // Rutas
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
-app.use("/api/cashboxes", cashBoxRoutes);
-app.use("/api/chequeras", chequeraRoutes);
-app.use("/api/clientes", clienteRoutes);
-app.use("/api/counters", counterRoutes);
+app.use("/api/inquilinos", tenantRoutes);
+app.use("/api/propietarios", ownerRoutes);
+app.use("/api/propiedades", propertyRoutes);
+app.use("/api/ventas", saleRoutes);
 
 // Ruta de prueba
 app.get("/api/health", (req, res) => {

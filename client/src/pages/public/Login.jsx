@@ -83,14 +83,41 @@ const Login = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-white px-4 relative overflow-hidden">
-      {/* Background blur effects */}
-      <div className="absolute inset-0">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-rose-300/30 rounded-full blur-3xl"></div>
-        <div className="absolute top-1/3 right-1/4 w-80 h-80 bg-blue-400/20 rounded-full blur-3xl"></div>
-        <div className="absolute top-1/3 right-1/4 w-80 h-80 bg-pink-400/20 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-1/4 left-1/3 w-72 h-72 bg-rose-500/25 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-1/3 right-1/3 w-64 h-64 bg-rose-400/20 rounded-full blur-3xl"></div>
+      {/* Background pattern with lines */}
+      <div className="absolute inset-0 opacity-5">
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage: `
+            linear-gradient(45deg, #000 1px, transparent 1px),
+            linear-gradient(-45deg, #000 1px, transparent 1px),
+            linear-gradient(90deg, #000 1px, transparent 1px),
+            linear-gradient(0deg, #000 1px, transparent 1px)
+          `,
+            backgroundSize: "40px 40px, 40px 40px, 20px 20px, 20px 20px",
+            backgroundPosition: "0 0, 0 0, 0 0, 0 0",
+          }}
+        ></div>
+
+        {/* Diagonal lines */}
+        <div className="absolute top-0 left-0 w-full h-full">
+          <div className="absolute top-10 left-10 w-32 h-0.5 bg-gray-300 transform rotate-45"></div>
+          <div className="absolute top-20 right-20 w-24 h-0.5 bg-gray-300 transform -rotate-45"></div>
+          <div className="absolute bottom-32 left-16 w-28 h-0.5 bg-gray-300 transform rotate-12"></div>
+          <div className="absolute bottom-20 right-32 w-20 h-0.5 bg-gray-300 transform -rotate-12"></div>
+          <div className="absolute top-1/3 left-1/4 w-16 h-0.5 bg-gray-300 transform rotate-75"></div>
+          <div className="absolute top-2/3 right-1/4 w-24 h-0.5 bg-gray-300 transform -rotate-30"></div>
+        </div>
+
+        {/* Vertical lines */}
+        <div className="absolute top-0 left-1/4 w-0.5 h-full bg-gray-200"></div>
+        <div className="absolute top-0 right-1/3 w-0.5 h-full bg-gray-200"></div>
+
+        {/* Horizontal lines */}
+        <div className="absolute top-1/4 left-0 w-full h-0.5 bg-gray-200"></div>
+        <div className="absolute bottom-1/3 left-0 w-full h-0.5 bg-gray-200"></div>
       </div>
+
       <div className="w-full max-w-md space-y-8 relative z-10">
         {/* Logo y título */}
         <div className="text-center">
@@ -99,7 +126,7 @@ const Login = () => {
           </Link>
           <h1 className="text-3xl font-bold text-foreground">Iniciar Sesión</h1>
           <p className="text-muted-foreground mt-2">
-            Accede a tu cuenta para gestionar tu empresa
+            Inicia sesión en tu CRM inmobiliario y gestiona tu negocio
           </p>
         </div>
 
@@ -198,7 +225,7 @@ const Login = () => {
               {/* Submit button */}
               <Button
                 type="submit"
-                className="w-full"
+                className="w-full "
                 disabled={isLoading || authLoading}
               >
                 {isLoading || authLoading

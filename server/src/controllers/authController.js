@@ -20,7 +20,12 @@ export const register = async (req, res) => {
       email,
       phone,
       company,
-      companySize,
+      companyType,
+      realEstateType,
+      agentCount,
+      licenseNumber,
+      slug,
+      userType,
       password,
       acceptTerms,
       acceptMarketing,
@@ -35,18 +40,34 @@ export const register = async (req, res) => {
       });
     }
 
+    // Verificar si el slug ya existe (si se proporciona)
+    if (slug) {
+      const slugExists = await User.findOne({ "company.slug": slug });
+      if (slugExists) {
+        return res.status(400).json({
+          success: false,
+          message: "El slug de la inmobiliaria ya está en uso",
+        });
+      }
+    }
+
     // Crear usuario con datos completos
     const userData = {
       name: `${firstName} ${lastName}`,
       email,
       password,
       role: "user",
+      userType: userType || "owner",
       profile: {
         phone: phone || "",
       },
       company: {
         name: company,
-        size: companySize,
+        type: companyType,
+        realEstateType: realEstateType || "residential",
+        agentCount: agentCount || 1,
+        licenseNumber: licenseNumber || "",
+        slug: slug || "", // Se generará automáticamente si no se proporciona
       },
     };
 

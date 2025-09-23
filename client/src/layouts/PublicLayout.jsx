@@ -29,9 +29,9 @@ const PublicLayout = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-white">
       {/* Header */}
-      <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <header className="border-b backdrop-blur bg-white">
         <div className="container mx-auto px-4 py-4">
           <div className="flex  items-center justify-between">
             {/* Logo */}
@@ -60,15 +60,15 @@ const PublicLayout = () => {
                     <User className="h-4 w-4" />
                     <span>{user.name || user.email}</span>
                   </div>
-                  <Button 
-                    variant="ghost" 
+                  <Button
+                    variant="ghost"
                     size="sm"
                     onClick={() => navigate("/dashboard")}
                   >
                     Dashboard
                   </Button>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     size="sm"
                     onClick={handleLogout}
                     disabled={isLoading}
@@ -125,8 +125,8 @@ const PublicLayout = () => {
                         <User className="h-4 w-4" />
                         <span>{user.name || user.email}</span>
                       </div>
-                      <Button 
-                        variant="ghost" 
+                      <Button
+                        variant="ghost"
                         size="sm"
                         className="w-full justify-start"
                         onClick={() => {
@@ -136,8 +136,8 @@ const PublicLayout = () => {
                       >
                         Dashboard
                       </Button>
-                      <Button 
-                        variant="outline" 
+                      <Button
+                        variant="outline"
                         size="sm"
                         className="w-full justify-start"
                         onClick={handleLogout}

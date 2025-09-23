@@ -1,4 +1,5 @@
 import Tenant from "../models/Tenant.js";
+import Property from "../models/Property.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { v4 as uuidv4 } from "uuid";
@@ -15,18 +16,17 @@ const generarToken = (id) => {
 // @access  Privado (solo inmobiliarias)
 export const crearInquilino = async (req, res) => {
   try {
-    const {
-      nombre,
-      email,
-      password,
-      telefono,
-      numeroDocumento,
-      propietario,
-      propiedad,
-      contrato,
-      contactoEmergencia,
-      notas,
-    } = req.body;
+    // Extraer campos básicos requeridos (compatibilidad con 'nombre' y 'name')
+    const name = req.body.name || req.body.nombre;
+    const { email } = req.body;
+
+    // Validar que al menos nombre y email estén presentes
+    if (!name || !email) {
+      return res.status(400).json({
+        exito: false,
+        mensaje: "El nombre y email son requeridos para crear un inquilino",
+      });
+    }
 
     // Verificar si el email ya existe
     const inquilinoExistente = await Tenant.findOne({ email });
@@ -34,17 +34,6 @@ export const crearInquilino = async (req, res) => {
       return res.status(400).json({
         exito: false,
         mensaje: "Ya existe un inquilino con este email",
-      });
-    }
-
-    // Verificar si el número de documento ya existe
-    const documentoExistente = await Tenant.findOne({ 
-      idNumber: numeroDocumento 
-    });
-    if (documentoExistente) {
-      return res.status(400).json({
-        exito: false,
-        mensaje: "Ya existe un inquilino con este número de documento",
       });
     }
 
@@ -56,36 +45,23 @@ export const crearInquilino = async (req, res) => {
       agentName: req.user.name,
     };
 
-    // Crear el inquilino
-    const inquilino = await Tenant.create({
-      name: nombre,
-      email,
-      password,
-      phone: telefono,
-      idNumber: numeroDocumento,
-      owner: propietario,
-      property: propiedad,
-      contract: contrato,
-      emergencyContact: contactoEmergencia,
-      realEstate: inmobiliaria,
-      notes: notas,
-    });
+    // Preparar datos del inquilino (campos básicos + todos los datos del cliente)
+    const datosInquilino = {
+      ...req.body, // Todos los datos del cliente se incluyen dinámicamente
+      name, // Asegurar que name esté presente
+      email, // Asegurar que email esté presente
+      realEstate: inmobiliaria, // Información de la inmobiliaria
+      createdBy: req.user._id, // Usuario que lo creó
+    };
 
-    // Generar pagos mensuales automáticamente si se especifica
-    if (contrato && contrato.startDate && contrato.endDate) {
-      const mesesContrato = Math.ceil(
-        (new Date(contrato.endDate) - new Date(contrato.startDate)) / 
-        (1000 * 60 * 60 * 24 * 30)
-      );
-      inquilino.generateMonthlyPayments(mesesContrato);
-      await inquilino.save();
-    }
+    // Crear el inquilino con todos los datos del cliente
+    const inquilino = await Tenant.create(datosInquilino);
 
     res.status(201).json({
       exito: true,
       mensaje: "Inquilino creado exitosamente",
       datos: {
-        inquilino: inquilino.getPublicProfile(),
+        inquilino,
         token: generarToken(inquilino._id),
       },
     });
@@ -99,63 +75,119 @@ export const crearInquilino = async (req, res) => {
   }
 };
 
+// @desc    Crear inquilino con datos mínimos (creación automática)
+// @route   POST /api/inquilinos/automatico
+// @access  Privado (solo inmobiliarias)
+export const crearInquilinoAutomatico = async (req, res) => {
+  try {
+    // Compatibilidad con 'nombre' y 'name'
+    const name = req.body.name || req.body.nombre;
+    const { email } = req.body;
+
+    // Validar campos requeridos
+    if (!name || !email) {
+      return res.status(400).json({
+        exito: false,
+        mensaje: "El nombre y email son requeridos",
+      });
+    }
+
+    // Verificar si el email ya existe
+    const inquilinoExistente = await Tenant.findOne({ email });
+    if (inquilinoExistente) {
+      return res.status(400).json({
+        exito: false,
+        mensaje: "Ya existe un inquilino con este email",
+      });
+    }
+
+    // Obtener información de la inmobiliaria del usuario autenticado
+    const inmobiliaria = {
+      companyId: req.user.companyId || req.user._id,
+      companyName: req.user.companyName || req.user.name,
+      agentId: req.user._id,
+      agentName: req.user.name,
+    };
+
+    // Crear inquilino con datos mínimos
+    const datosInquilino = {
+      name,
+      email,
+      realEstate: inmobiliaria,
+      createdBy: req.user._id,
+      status: "active",
+    };
+
+    const inquilino = await Tenant.create(datosInquilino);
+
+    res.status(201).json({
+      exito: true,
+      mensaje: "Inquilino creado automáticamente con datos mínimos",
+      datos: {
+        inquilino,
+        token: generarToken(inquilino._id),
+      },
+    });
+  } catch (error) {
+    console.error("Error al crear inquilino automático:", error);
+
+    res.status(500).json({
+      exito: false,
+      mensaje: "Error interno del servidor",
+      error: error.message,
+    });
+  }
+};
+
 // @desc    Obtener todos los inquilinos de una inmobiliaria
 // @route   GET /api/inquilinos
 // @access  Privado
 export const obtenerInquilinos = async (req, res) => {
   try {
-    const { 
-      pagina = 1, 
-      limite = 10, 
-      estado, 
-      busqueda,
-      ordenarPor = "createdAt",
-      orden = "desc"
-    } = req.query;
-
-    // Construir filtros
+    // Filtro básico por inmobiliaria
     const filtros = {
       "realEstate.companyId": req.user.companyId || req.user._id,
     };
 
-    if (estado) {
-      filtros.status = estado;
-    }
+    // Obtener todos los inquilinos sin populate
+    const inquilinos = await Tenant.find(filtros)
+      .select(
+        "-password -resetPasswordToken -resetPasswordExpire -emailVerificationToken"
+      )
+      .sort({ createdAt: -1 });
 
-    if (busqueda) {
-      filtros.$or = [
-        { name: { $regex: busqueda, $options: "i" } },
-        { email: { $regex: busqueda, $options: "i" } },
-        { phone: { $regex: busqueda, $options: "i" } },
-        { idNumber: { $regex: busqueda, $options: "i" } },
-        { "property.address": { $regex: busqueda, $options: "i" } },
-      ];
-    }
-
-    // Configurar paginación
-    const opciones = {
-      page: parseInt(pagina),
-      limit: parseInt(limite),
-      sort: { [ordenarPor]: orden === "desc" ? -1 : 1 },
-      select: "-password -resetPasswordToken -resetPasswordExpire -emailVerificationToken",
-    };
-
-    const inquilinos = await Tenant.paginate(filtros, opciones);
+    // Buscar propiedades manualmente por ID
+    const inquilinosConPropiedades = await Promise.all(
+      inquilinos.map(async (inquilino) => {
+        const inquilinoObj = inquilino.toObject();
+        
+        // Si el inquilino tiene un property ID, buscar la propiedad completa
+        if (inquilinoObj.property) {
+          try {
+            const propiedad = await Property.findById(inquilinoObj.property)
+              .populate("owner") // Populate del owner de la propiedad
+              .lean();
+            
+            if (propiedad) {
+              inquilinoObj.propertyDetails = propiedad;
+            }
+          } catch (error) {
+            console.log(`Error al buscar propiedad ${inquilinoObj.property}:`, error.message);
+          }
+        }
+        
+        return inquilinoObj;
+      })
+    );
 
     res.status(200).json({
       exito: true,
       datos: {
-        inquilinos: inquilinos.docs,
-        paginacion: {
-          paginaActual: inquilinos.page,
-          totalPaginas: inquilinos.totalPages,
-          totalInquilinos: inquilinos.totalDocs,
-          limite: inquilinos.limit,
-          tienePaginaAnterior: inquilinos.hasPrevPage,
-          tienePaginaSiguiente: inquilinos.hasNextPage,
-        },
+        inquilinos: inquilinosConPropiedades,
+        total: inquilinosConPropiedades.length,
       },
     });
+    
   } catch (error) {
     console.error("Error al obtener inquilinos:", error);
     res.status(500).json({
@@ -174,7 +206,10 @@ export const obtenerInquilinoPorId = async (req, res) => {
     const inquilino = await Tenant.findOne({
       _id: req.params.id,
       "realEstate.companyId": req.user.companyId || req.user._id,
-    }).select("-password -resetPasswordToken -resetPasswordExpire -emailVerificationToken");
+    })
+      .select(
+        "-password -resetPasswordToken -resetPasswordExpire -emailVerificationToken"
+      );
 
     if (!inquilino) {
       return res.status(404).json({
@@ -183,10 +218,27 @@ export const obtenerInquilinoPorId = async (req, res) => {
       });
     }
 
+    // Buscar propiedad manualmente por ID si existe
+    let propertyDetails = null;
+    if (inquilino.property) {
+      try {
+        propertyDetails = await Property.findById(inquilino.property)
+          .populate("owner") // Populate del owner de la propiedad
+          .lean();
+      } catch (error) {
+        console.log(`Error al buscar propiedad ${inquilino.property}:`, error.message);
+      }
+    }
+
+    const inquilinoObj = inquilino.toObject();
+    if (propertyDetails) {
+      inquilinoObj.propertyDetails = propertyDetails;
+    }
+
     res.status(200).json({
       exito: true,
       datos: {
-        inquilino,
+        inquilino: inquilinoObj,
         contratoActivo: inquilino.isContractActive(),
         diasRestantesContrato: inquilino.getContractDaysRemaining(),
         tienePagosVencidos: inquilino.hasOverduePayments(),
@@ -224,7 +276,7 @@ export const actualizarInquilino = async (req, res) => {
     // Campos que se pueden actualizar
     const camposPermitidos = [
       "name",
-      "email", 
+      "email",
       "phone",
       "idNumber",
       "owner",
@@ -430,22 +482,24 @@ export const obtenerHistorialPagos = async (req, res) => {
 
     // Aplicar filtros
     if (estado) {
-      historialPagos = historialPagos.filter(pago => pago.status === estado);
+      historialPagos = historialPagos.filter((pago) => pago.status === estado);
     }
 
     if (concepto) {
-      historialPagos = historialPagos.filter(pago => pago.concept === concepto);
+      historialPagos = historialPagos.filter(
+        (pago) => pago.concept === concepto
+      );
     }
 
     if (fechaDesde) {
       historialPagos = historialPagos.filter(
-        pago => pago.dueDate >= new Date(fechaDesde)
+        (pago) => pago.dueDate >= new Date(fechaDesde)
       );
     }
 
     if (fechaHasta) {
       historialPagos = historialPagos.filter(
-        pago => pago.dueDate <= new Date(fechaHasta)
+        (pago) => pago.dueDate <= new Date(fechaHasta)
       );
     }
 
@@ -464,13 +518,13 @@ export const obtenerHistorialPagos = async (req, res) => {
         resumen: {
           totalPagos: historialPagos.length,
           totalPagado: historialPagos
-            .filter(p => p.status === "pagado")
+            .filter((p) => p.status === "pagado")
             .reduce((sum, p) => sum + p.amount, 0),
           totalPendiente: historialPagos
-            .filter(p => p.status === "pendiente")
+            .filter((p) => p.status === "pendiente")
             .reduce((sum, p) => sum + p.amount, 0),
           totalVencido: historialPagos
-            .filter(p => p.status === "vencido")
+            .filter((p) => p.status === "vencido")
             .reduce((sum, p) => sum + p.amount, 0),
         },
       },
@@ -538,11 +592,11 @@ export const obtenerInquilinosConPagosVencidos = async (req, res) => {
       status: "activo",
     }).select("name email phone paymentHistory property.address");
 
-    const inquilinosConPagosVencidos = inquilinos.filter(inquilino => 
+    const inquilinosConPagosVencidos = inquilinos.filter((inquilino) =>
       inquilino.hasOverduePayments()
     );
 
-    const resumen = inquilinosConPagosVencidos.map(inquilino => ({
+    const resumen = inquilinosConPagosVencidos.map((inquilino) => ({
       id: inquilino._id,
       nombre: inquilino.name,
       email: inquilino.email,
@@ -558,7 +612,7 @@ export const obtenerInquilinosConPagosVencidos = async (req, res) => {
         inquilinosConPagosVencidos: resumen,
         total: resumen.length,
         montoTotalAdeudado: resumen.reduce(
-          (total, inquilino) => total + inquilino.totalAdeudado, 
+          (total, inquilino) => total + inquilino.totalAdeudado,
           0
         ),
       },
@@ -588,30 +642,30 @@ export const obtenerEstadisticasInquilinos = async (req, res) => {
       pagosVencidos,
     ] = await Promise.all([
       Tenant.countDocuments({ "realEstate.companyId": companyId }),
-      Tenant.countDocuments({ 
-        "realEstate.companyId": companyId, 
-        status: "activo" 
-      }),
-      Tenant.countDocuments({ 
-        "realEstate.companyId": companyId, 
-        status: "inactivo" 
-      }),
-      Tenant.countDocuments({ 
-        "realEstate.companyId": companyId, 
-        status: "vencido" 
-      }),
-      Tenant.find({ 
+      Tenant.countDocuments({
         "realEstate.companyId": companyId,
-        status: "activo"
+        status: "activo",
+      }),
+      Tenant.countDocuments({
+        "realEstate.companyId": companyId,
+        status: "inactivo",
+      }),
+      Tenant.countDocuments({
+        "realEstate.companyId": companyId,
+        status: "vencido",
+      }),
+      Tenant.find({
+        "realEstate.companyId": companyId,
+        status: "activo",
       }).select("paymentHistory"),
     ]);
 
-    const inquilinosConPagosVencidos = pagosVencidos.filter(inquilino => 
+    const inquilinosConPagosVencidos = pagosVencidos.filter((inquilino) =>
       inquilino.hasOverduePayments()
     ).length;
 
     const montoTotalAdeudado = pagosVencidos.reduce(
-      (total, inquilino) => total + inquilino.getTotalOwed(), 
+      (total, inquilino) => total + inquilino.getTotalOwed(),
       0
     );
 
@@ -624,9 +678,10 @@ export const obtenerEstadisticasInquilinos = async (req, res) => {
         contratosVencidos,
         inquilinosConPagosVencidos,
         montoTotalAdeudado,
-        porcentajeOcupacion: totalInquilinos > 0 
-          ? Math.round((inquilinosActivos / totalInquilinos) * 100) 
-          : 0,
+        porcentajeOcupacion:
+          totalInquilinos > 0
+            ? Math.round((inquilinosActivos / totalInquilinos) * 100)
+            : 0,
       },
     });
   } catch (error) {

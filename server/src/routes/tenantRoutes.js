@@ -1,6 +1,7 @@
 import express from "express";
 import {
   crearInquilino,
+  crearInquilinoAutomatico,
   obtenerInquilinos,
   obtenerInquilinoPorId,
   actualizarInquilino,
@@ -13,7 +14,6 @@ import {
   obtenerEstadisticasInquilinos,
 } from "../controllers/tenantController.js";
 import { protect } from "../middleware/auth.js";
-import { validarInquilino, validarPago } from "../middleware/validation.js";
 
 const router = express.Router();
 
@@ -24,11 +24,12 @@ router.use(protect);
 router
   .route("/")
   .get(obtenerInquilinos) // GET /api/inquilinos - Obtener todos los inquilinos
-  .post(validarInquilino, crearInquilino); // POST /api/inquilinos - Crear nuevo inquilino
+  .post(crearInquilino); // POST /api/inquilinos - Crear nuevo inquilino
 
 // Rutas especiales (deben ir antes de las rutas con parámetros)
 router.get("/pagos-vencidos", obtenerInquilinosConPagosVencidos); // GET /api/inquilinos/pagos-vencidos
 router.get("/estadisticas", obtenerEstadisticasInquilinos); // GET /api/inquilinos/estadisticas
+router.post("/automatico", crearInquilinoAutomatico); // POST /api/inquilinos/automatico - Crear inquilino automáticamente
 
 // Rutas con ID de inquilino
 router
@@ -41,7 +42,7 @@ router
 router
   .route("/:id/pagos")
   .get(obtenerHistorialPagos) // GET /api/inquilinos/:id/pagos - Obtener historial de pagos
-  .post(validarPago, agregarPago); // POST /api/inquilinos/:id/pagos - Agregar nuevo pago
+  .post(agregarPago); // POST /api/inquilinos/:id/pagos - Agregar nuevo pago
 
 // Rutas específicas de pagos
 router.put("/:id/pagos/:pagoId/pagar", marcarPagoComoPagado); // PUT /api/inquilinos/:id/pagos/:pagoId/pagar

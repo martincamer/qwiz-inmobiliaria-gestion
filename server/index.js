@@ -10,6 +10,7 @@ import tenantRoutes from "./src/routes/tenantRoutes.js";
 import ownerRoutes from "./src/routes/ownerRoutes.js";
 import propertyRoutes from "./src/routes/propertyRoutes.js";
 import saleRoutes from "./src/routes/saleRoutes.js";
+import prospectRoutes from "./src/routes/prospectRoutes.js";
 
 import { errorHandler } from "./src/middleware/errorHandler.js";
 import { notFound } from "./src/middleware/notFound.js";
@@ -76,6 +77,7 @@ app.use("/api/inquilinos", tenantRoutes);
 app.use("/api/propietarios", ownerRoutes);
 app.use("/api/propiedades", propertyRoutes);
 app.use("/api/ventas", saleRoutes);
+app.use("/api/prospectos", prospectRoutes);
 
 // Ruta de prueba
 app.get("/api/health", (req, res) => {

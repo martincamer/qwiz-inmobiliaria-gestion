@@ -207,31 +207,32 @@ export const OwnersProvider = ({ children }) => {
       return { success: true, data: response.data.data };
     } catch (error) {
       console.error("❌ Error en createOwner:", error);
-      
+
       let errorMessage = "Error al crear propietario";
       let errorDetails = null;
 
       // Extraer información detallada del error
       if (error.response?.data) {
         const serverError = error.response.data;
-        
+
         // Si hay un mensaje específico del servidor
         if (serverError.message) {
           errorMessage = serverError.message;
         }
-        
+
         // Si hay errores de validación específicos
         if (serverError.errors && Array.isArray(serverError.errors)) {
           errorDetails = serverError.errors;
           errorMessage = "Errores de validación encontrados";
         }
-        
+
         // Si hay información sobre campo duplicado
         if (serverError.duplicateField) {
-          if (serverError.duplicateField === 'email') {
+          if (serverError.duplicateField === "email") {
             errorMessage = "Ya existe un propietario con este email";
-          } else if (serverError.duplicateField === 'numeroIdentificacion') {
-            errorMessage = "Ya existe un propietario con este número de identificación";
+          } else if (serverError.duplicateField === "numeroIdentificacion") {
+            errorMessage =
+              "Ya existe un propietario con este número de identificación";
           }
         }
       } else if (error.request) {
@@ -241,12 +242,12 @@ export const OwnersProvider = ({ children }) => {
       }
 
       dispatch({ type: OWNERS_ACTIONS.SET_ERROR, payload: errorMessage });
-      
-      return { 
-        success: false, 
+
+      return {
+        success: false,
         error: errorMessage,
         details: errorDetails,
-        statusCode: error.response?.status
+        statusCode: error.response?.status,
       };
     }
   };

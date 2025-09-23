@@ -31,7 +31,6 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   DropdownMenu,
@@ -49,46 +48,58 @@ import {
   Eye,
   Edit,
   Trash2,
-  Users,
+  DollarSign,
+  Calendar,
+  User,
   Building,
-  Phone,
-  Mail,
   ChevronLeft,
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
   AlertTriangle,
+  ShoppingCart,
+  Clock,
+  CheckCircle,
+  XCircle,
+  AlertCircle,
+  FileText,
 } from "lucide-react";
-import { useOwners } from "@/contexts/OwnersContext";
+import { useSales } from "@/contexts/SalesContext";
 import { toast } from "sonner";
-import CreateOwnerModal from "@/components/modals/CreateOwnerModal";
-import EditOwnerModal from "@/components/modals/EditOwnerModal";
-import ViewOwnerModal from "@/components/modals/ViewOwnerModal";
+import CreateSaleModal from "@/components/modals/CreateSaleModal";
+import EditSaleModal from "@/components/modals/EditSaleModal";
+import ViewSaleModal from "@/components/modals/ViewSaleModal";
 
-const Owners = () => {
+const Sales = () => {
   const {
-    owners,
+    sales,
     isLoading,
     error,
     pagination,
     filters,
-    getOwners,
-    deleteOwner,
+    getSales,
+    deleteSale,
     updateFilters,
     updatePagination,
     clearError,
-  } = useOwners();
+  } = useSales();
 
-  const [selectedOwner, setSelectedOwner] = useState(null);
+  const [selectedSale, setSelectedSale] = useState(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showViewModal, setShowViewModal] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [ownerToDelete, setOwnerToDelete] = useState(null);
+  const [saleToDelete, setSaleToDelete] = useState(null);
   const [localFilters, setLocalFilters] = useState({
     search: "",
-    activo: "all",
-    tipoIdentificacion: "all",
+    status: "all",
+    property: "",
+    prospect: "",
+    owner: "",
+    startDate: "",
+    endDate: "",
+    minPrice: "",
+    maxPrice: "",
   });
 
   // Limpiar errores al montar el componente
@@ -100,11 +111,7 @@ const Owners = () => {
   const handleSearch = () => {
     const filtersToSend = {
       ...localFilters,
-      activo: localFilters.activo === "all" ? "" : localFilters.activo,
-      tipoIdentificacion:
-        localFilters.tipoIdentificacion === "all"
-          ? ""
-          : localFilters.tipoIdentificacion,
+      status: localFilters.status === "all" ? "" : localFilters.status,
     };
     updateFilters(filtersToSend);
     updatePagination({ ...pagination, currentPage: 1 });
@@ -114,13 +121,25 @@ const Owners = () => {
   const clearFilters = () => {
     const emptyFilters = {
       search: "",
-      activo: "all",
-      tipoIdentificacion: "all",
+      status: "all",
+      property: "",
+      prospect: "",
+      owner: "",
+      startDate: "",
+      endDate: "",
+      minPrice: "",
+      maxPrice: "",
     };
     const filtersToSend = {
       search: "",
-      activo: "",
-      tipoIdentificacion: "",
+      status: "",
+      property: "",
+      prospect: "",
+      owner: "",
+      startDate: "",
+      endDate: "",
+      minPrice: "",
+      maxPrice: "",
     };
     setLocalFilters(emptyFilters);
     updateFilters(filtersToSend);
@@ -134,44 +153,45 @@ const Owners = () => {
 
   // Manejar eliminación
   const handleDelete = async () => {
-    if (!ownerToDelete) return;
+    if (!saleToDelete) return;
 
     try {
-      const result = await deleteOwner(ownerToDelete._id);
+      const result = await deleteSale(saleToDelete._id);
       if (result.success) {
-        toast.success("Propietario eliminado exitosamente");
+        toast.success("Venta eliminada exitosamente");
         setShowDeleteDialog(false);
-        setOwnerToDelete(null);
+        setSaleToDelete(null);
         // Recargar la lista
-        getOwners();
+        getSales();
       } else {
-        toast.error(result.error || "Error al eliminar propietario");
+        toast.error(result.error || "Error al eliminar venta");
       }
     } catch (error) {
-      toast.error("Error al eliminar propietario");
+      toast.error("Error al eliminar venta");
     }
   };
 
   // Abrir modal de edición
-  const openEditModal = (owner) => {
-    setSelectedOwner(owner);
+  const openEditModal = (sale) => {
+    setSelectedSale(sale);
     setShowEditModal(true);
   };
 
   // Abrir modal de vista
-  const openViewModal = (owner) => {
-    setSelectedOwner(owner);
+  const openViewModal = (sale) => {
+    setSelectedSale(sale);
     setShowViewModal(true);
   };
 
   // Abrir diálogo de eliminación
-  const openDeleteDialog = (owner) => {
-    setOwnerToDelete(owner);
+  const openDeleteDialog = (sale) => {
+    setSaleToDelete(sale);
     setShowDeleteDialog(true);
   };
 
   // Formatear fecha
   const formatDate = (dateString) => {
+    if (!dateString) return "No especificada";
     return new Date(dateString).toLocaleDateString("es-ES", {
       year: "numeric",
       month: "short",
@@ -179,34 +199,74 @@ const Owners = () => {
     });
   };
 
+  // Formatear precio
+  const formatPrice = (price, currency = "ARS") => {
+    if (!price) return "No especificado";
+
+    const formatter = new Intl.NumberFormat("es-AR", {
+      style: "currency",
+      currency: currency,
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    });
+
+    return formatter.format(price);
+  };
+
   // Obtener badge de estado
-  const getStatusBadge = (activo) => {
-    return activo ? (
-      <Badge variant="default" className="bg-green-100 text-green-800">
-        Activo
-      </Badge>
-    ) : (
-      <Badge variant="secondary" className="bg-red-100 text-red-800">
-        Inactivo
+  const getStatusBadge = (status) => {
+    const statusConfig = {
+      Pendiente: {
+        variant: "default",
+        className: "bg-yellow-100 text-yellow-800",
+        icon: Clock,
+      },
+      "En Proceso": {
+        variant: "default",
+        className: "bg-blue-100 text-blue-800",
+        icon: AlertCircle,
+      },
+      Completada: {
+        variant: "default",
+        className: "bg-green-100 text-green-800",
+        icon: CheckCircle,
+      },
+      Cancelada: {
+        variant: "secondary",
+        className: "bg-red-100 text-red-800",
+        icon: XCircle,
+      },
+      Pausada: {
+        variant: "secondary",
+        className: "bg-gray-100 text-gray-800",
+        icon: AlertTriangle,
+      },
+    };
+
+    const config = statusConfig[status] || statusConfig.Pendiente;
+    const IconComponent = config.icon;
+
+    return (
+      <Badge variant={config.variant} className={config.className}>
+        <IconComponent className="h-3 w-3 mr-1" />
+        {status}
       </Badge>
     );
   };
 
-  // Obtener badge de tipo de identificación
-  const getIdTypeBadge = (tipo) => {
-    const colors = {
-      DNI: "bg-blue-100 text-blue-800",
-      CUIT: "bg-purple-100 text-purple-800",
-      CUIL: "bg-orange-100 text-orange-800",
-      RAZON_SOCIAL: "bg-gray-100 text-gray-800",
+  // Obtener badge de prioridad
+  const getPriorityBadge = (priority) => {
+    const priorityConfig = {
+      Alta: { className: "bg-red-100 text-red-800" },
+      Media: { className: "bg-yellow-100 text-yellow-800" },
+      Baja: { className: "bg-green-100 text-green-800" },
     };
 
+    const config = priorityConfig[priority] || priorityConfig.Media;
+
     return (
-      <Badge
-        variant="outline"
-        className={colors[tipo] || "bg-gray-100 text-gray-800"}
-      >
-        {tipo}
+      <Badge variant="outline" className={config.className}>
+        {priority}
       </Badge>
     );
   };
@@ -216,14 +276,14 @@ const Owners = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Propietarios</h1>
+          <h1 className="text-3xl font-bold text-foreground">Ventas</h1>
           <p className="text-muted-foreground">
-            Gestiona los propietarios de inmuebles
+            Gestiona el proceso de ventas y transacciones
           </p>
         </div>
         <Button onClick={() => setShowCreateModal(true)}>
           <Plus className="h-4 w-4 mr-2" />
-          Nuevo Propietario
+          Nueva Venta
         </Button>
       </div>
 
@@ -241,7 +301,7 @@ const Owners = () => {
               <Label htmlFor="search">Buscar</Label>
               <Input
                 id="search"
-                placeholder="Nombre, email, identificación..."
+                placeholder="Propiedad, prospecto, propietario..."
                 value={localFilters.search}
                 onChange={(e) =>
                   setLocalFilters({ ...localFilters, search: e.target.value })
@@ -252,9 +312,9 @@ const Owners = () => {
             <div className="space-y-2">
               <Label>Estado</Label>
               <Select
-                value={localFilters.activo}
+                value={localFilters.status}
                 onValueChange={(value) =>
-                  setLocalFilters({ ...localFilters, activo: value })
+                  setLocalFilters({ ...localFilters, status: value })
                 }
               >
                 <SelectTrigger>
@@ -262,35 +322,64 @@ const Owners = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todos los estados</SelectItem>
-                  <SelectItem value="true">Activo</SelectItem>
-                  <SelectItem value="false">Inactivo</SelectItem>
+                  <SelectItem value="Pendiente">Pendiente</SelectItem>
+                  <SelectItem value="En Proceso">En Proceso</SelectItem>
+                  <SelectItem value="Completada">Completada</SelectItem>
+                  <SelectItem value="Cancelada">Cancelada</SelectItem>
+                  <SelectItem value="Pausada">Pausada</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>Tipo de Identificación</Label>
-              <Select
-                value={localFilters.tipoIdentificacion}
-                onValueChange={(value) =>
+              <Label htmlFor="startDate">Fecha Desde</Label>
+              <Input
+                id="startDate"
+                type="date"
+                value={localFilters.startDate}
+                onChange={(e) =>
                   setLocalFilters({
                     ...localFilters,
-                    tipoIdentificacion: value,
+                    startDate: e.target.value,
                   })
                 }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Todos los tipos" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos los tipos</SelectItem>
-                  <SelectItem value="DNI">DNI</SelectItem>
-                  <SelectItem value="CUIT">CUIT</SelectItem>
-                  <SelectItem value="CUIL">CUIL</SelectItem>
-                  <SelectItem value="RAZON_SOCIAL">Razón Social</SelectItem>
-                </SelectContent>
-              </Select>
+              />
             </div>
-            <div className="flex items-end gap-2">
+            <div className="space-y-2">
+              <Label htmlFor="endDate">Fecha Hasta</Label>
+              <Input
+                id="endDate"
+                type="date"
+                value={localFilters.endDate}
+                onChange={(e) =>
+                  setLocalFilters({ ...localFilters, endDate: e.target.value })
+                }
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="minPrice">Precio Mínimo</Label>
+              <Input
+                id="minPrice"
+                type="number"
+                placeholder="0"
+                value={localFilters.minPrice}
+                onChange={(e) =>
+                  setLocalFilters({ ...localFilters, minPrice: e.target.value })
+                }
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="maxPrice">Precio Máximo</Label>
+              <Input
+                id="maxPrice"
+                type="number"
+                placeholder="Sin límite"
+                value={localFilters.maxPrice}
+                onChange={(e) =>
+                  setLocalFilters({ ...localFilters, maxPrice: e.target.value })
+                }
+              />
+            </div>
+            <div className="flex gap-2 items-end">
               <Button
                 variant="secondary"
                 onClick={handleSearch}
@@ -307,12 +396,12 @@ const Owners = () => {
         </CardContent>
       </Card>
 
-      {/* Tabla de Propietarios */}
+      {/* Tabla de Ventas */}
       <Card>
         <CardHeader>
-          <CardTitle>Lista de Propietarios</CardTitle>
+          <CardTitle>Lista de Ventas</CardTitle>
           <CardDescription>
-            {pagination.totalItems} propietarios encontrados
+            {pagination.totalItems} ventas encontradas
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -324,25 +413,25 @@ const Owners = () => {
             <div className="flex flex-col items-center justify-center py-8 text-center">
               <AlertTriangle className="h-12 w-12 text-red-500 mb-4" />
               <h3 className="text-lg font-semibold text-red-700 mb-2">
-                Error al cargar propietarios
+                Error al cargar ventas
               </h3>
               <p className="text-red-600 mb-4">{error}</p>
-              <Button onClick={() => getOwners()} variant="outline">
+              <Button onClick={() => getSales()} variant="outline">
                 Reintentar
               </Button>
             </div>
-          ) : owners.length === 0 ? (
+          ) : sales.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-8 text-center">
-              <Users className="h-12 w-12 text-gray-400 mb-4" />
+              <ShoppingCart className="h-12 w-12 text-gray-400 mb-4" />
               <h3 className="text-lg font-semibold text-gray-700 mb-2">
-                No hay propietarios
+                No hay ventas
               </h3>
               <p className="text-gray-600 mb-4">
-                No se encontraron propietarios con los filtros aplicados
+                No se encontraron ventas con los filtros aplicados
               </p>
               <Button onClick={() => setShowCreateModal(true)}>
                 <Plus className="h-4 w-4 mr-2" />
-                Crear Primer Propietario
+                Crear Primera Venta
               </Button>
             </div>
           ) : (
@@ -351,60 +440,74 @@ const Owners = () => {
                 <Table>
                   <TableHeader>
                     <TableRow>
+                      <TableHead>Propiedad</TableHead>
+                      <TableHead>Prospecto</TableHead>
                       <TableHead>Propietario</TableHead>
-                      <TableHead>Identificación</TableHead>
-                      <TableHead>Contacto</TableHead>
-                      <TableHead>Propiedades</TableHead>
+                      <TableHead>Precio</TableHead>
                       <TableHead>Estado</TableHead>
-                      <TableHead>Fecha Registro</TableHead>
+                      <TableHead>Prioridad</TableHead>
+                      <TableHead>Fecha Inicio</TableHead>
+                      <TableHead>Fecha Límite</TableHead>
                       <TableHead className="text-right">Acciones</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {owners.map((owner) => (
-                      <TableRow key={owner._id}>
+                    {sales.map((sale) => (
+                      <TableRow key={sale._id}>
                         <TableCell>
                           <div className="flex flex-col">
                             <span className="font-medium">
-                              {owner.nombre} {owner.apellido}
+                              {sale.property?.title ||
+                                "Propiedad no especificada"}
                             </span>
-                            <span className="text-sm text-muted-foreground">
-                              {owner.email}
-                            </span>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex flex-col gap-1">
-                            {getIdTypeBadge(owner.tipoIdentificacion)}
-                            <span className="text-sm text-muted-foreground">
-                              {owner.numeroIdentificacion}
-                            </span>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex flex-col gap-1">
-                            {owner.telefono && (
-                              <div className="flex items-center gap-1 text-sm">
-                                <Phone className="h-3 w-3" />
-                                {owner.telefono}
-                              </div>
-                            )}
-                            <div className="flex items-center gap-1 text-sm">
-                              <Mail className="h-3 w-3" />
-                              {owner.email}
+                            <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                              <Building className="h-3 w-3" />
+                              {sale.property?.type || "Tipo no especificado"}
                             </div>
                           </div>
                         </TableCell>
                         <TableCell>
-                          <div className="flex items-center gap-1">
-                            <Building className="h-4 w-4 text-muted-foreground" />
-                            <span>
-                              {owner.estadisticas?.totalPropiedades || 0}
+                          <div className="flex flex-col">
+                            <span className="font-medium">
+                              {sale.prospect?.nombre} {sale.prospect?.apellido}
+                            </span>
+                            <span className="text-sm text-muted-foreground">
+                              {sale.prospect?.email}
                             </span>
                           </div>
                         </TableCell>
-                        <TableCell>{getStatusBadge(owner.activo)}</TableCell>
-                        <TableCell>{formatDate(owner.fechaRegistro)}</TableCell>
+                        <TableCell>
+                          <div className="flex flex-col">
+                            <span className="text-sm">
+                              {sale.owner?.nombre} {sale.owner?.apellido}
+                            </span>
+                            <span className="text-xs text-muted-foreground">
+                              {sale.owner?.email}
+                            </span>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-1">
+                            <DollarSign className="h-3 w-3" />
+                            <span className="font-medium">
+                              {formatPrice(sale.price, sale.currency)}
+                            </span>
+                          </div>
+                        </TableCell>
+                        <TableCell>{getStatusBadge(sale.status)}</TableCell>
+                        <TableCell>{getPriorityBadge(sale.priority)}</TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-1 text-sm">
+                            <Calendar className="h-3 w-3" />
+                            {formatDate(sale.startDate)}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-1 text-sm">
+                            <Calendar className="h-3 w-3" />
+                            {formatDate(sale.expectedCloseDate)}
+                          </div>
+                        </TableCell>
                         <TableCell className="text-right">
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
@@ -416,20 +519,20 @@ const Owners = () => {
                               <DropdownMenuLabel>Acciones</DropdownMenuLabel>
                               <DropdownMenuSeparator />
                               <DropdownMenuItem
-                                onClick={() => openViewModal(owner)}
+                                onClick={() => openViewModal(sale)}
                               >
                                 <Eye className="mr-2 h-4 w-4" />
                                 Ver Detalles
                               </DropdownMenuItem>
                               <DropdownMenuItem
-                                onClick={() => openEditModal(owner)}
+                                onClick={() => openEditModal(sale)}
                               >
                                 <Edit className="mr-2 h-4 w-4" />
                                 Editar
                               </DropdownMenuItem>
                               <DropdownMenuSeparator />
                               <DropdownMenuItem
-                                onClick={() => openDeleteDialog(owner)}
+                                onClick={() => openDeleteDialog(sale)}
                                 className="text-red-600"
                               >
                                 <Trash2 className="mr-2 h-4 w-4" />
@@ -455,7 +558,7 @@ const Owners = () => {
                       pagination.currentPage * pagination.itemsPerPage,
                       pagination.totalItems
                     )}{" "}
-                    de {pagination.totalItems} propietarios
+                    de {pagination.totalItems} ventas
                   </div>
                   <div className="flex items-center space-x-2">
                     <Button
@@ -513,35 +616,35 @@ const Owners = () => {
       </Card>
 
       {/* Modales */}
-      <CreateOwnerModal
+      <CreateSaleModal
         open={showCreateModal}
         onOpenChange={setShowCreateModal}
         onSuccess={() => {
           setShowCreateModal(false);
-          getOwners();
+          getSales();
         }}
       />
 
-      {selectedOwner && (
+      {selectedSale && (
         <>
-          <EditOwnerModal
+          <EditSaleModal
             open={showEditModal}
             onOpenChange={setShowEditModal}
-            owner={selectedOwner}
+            sale={selectedSale}
             onSuccess={() => {
               setShowEditModal(false);
-              setSelectedOwner(null);
-              getOwners();
+              setSelectedSale(null);
+              getSales();
             }}
           />
 
-          <ViewOwnerModal
+          <ViewSaleModal
             open={showViewModal}
             onOpenChange={setShowViewModal}
-            owner={selectedOwner}
+            sale={selectedSale}
             onClose={() => {
               setShowViewModal(false);
-              setSelectedOwner(null);
+              setSelectedSale(null);
             }}
           />
         </>
@@ -553,11 +656,8 @@ const Owners = () => {
           <DialogHeader>
             <DialogTitle>Confirmar Eliminación</DialogTitle>
             <DialogDescription>
-              ¿Estás seguro de que deseas eliminar al propietario{" "}
-              <strong>
-                {ownerToDelete?.nombre} {ownerToDelete?.apellido}
-              </strong>
-              ? Esta acción no se puede deshacer.
+              ¿Estás seguro de que deseas eliminar esta venta? Esta acción no se
+              puede deshacer y se perderán todos los datos asociados.
             </DialogDescription>
           </DialogHeader>
           <div className="flex justify-end gap-2 mt-4">
@@ -577,4 +677,4 @@ const Owners = () => {
   );
 };
 
-export default Owners;
+export default Sales;

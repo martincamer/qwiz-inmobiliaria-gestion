@@ -160,7 +160,7 @@ const Home = () => {
                 <span className="text-gray-900 block leading-none">
                   Tu inmobiliaria
                 </span>
-                <span className="text-yellow-500 text-shadow-amber-600 block mt-2 leading-none">
+                <span className="text-primary block mt-2 leading-none">
                   al siguiente nivel
                 </span>
               </h1>
@@ -254,13 +254,13 @@ const Home = () => {
             return (
               <Card
                 key={index}
-                className="border border-gray-200 hover:border-yellow-500 transition-all duration-300 hover:shadow-lg hover:shadow-yellow-500/20 hover:-translate-y-1 bg-white group"
+                className="border border-gray-200 hover:border-primary transition-all duration-300 hover:shadow-lg hover:shadow-primary/20 hover:-translate-y-1 bg-white group"
               >
                 <CardHeader>
-                  <div className="w-12 h-12 bg-gray-100 group-hover:bg-yellow-500 rounded-lg flex items-center justify-center mb-4 transition-all duration-300">
-                    <Icon className="h-6 w-6 text-gray-700 group-hover:text-black transition-colors duration-300" />
+                  <div className="w-12 h-12 bg-gray-100 group-hover:bg-primary rounded-lg flex items-center justify-center mb-4 transition-all duration-300">
+                    <Icon className="h-6 w-6 text-gray-700 group-hover:text-white transition-colors duration-300" />
                   </div>
-                  <CardTitle className="text-xl text-gray-900 group-hover:text-yellow-600 transition-colors duration-300">
+                  <CardTitle className="text-xl text-gray-900 group-hover:text-primary-600 transition-colors duration-300">
                     {feature.title}
                   </CardTitle>
                 </CardHeader>
@@ -295,35 +295,37 @@ const Home = () => {
         <div className="absolute inset-0 pointer-events-none">
           {/* Central vertical line */}
           <div className="absolute top-0 left-1/2 w-px h-full bg-gray-300 opacity-40 transform -translate-x-1/2"></div>
-          
+
           {/* Central horizontal line */}
           <div className="absolute top-1/2 left-0 w-full h-px bg-gray-300 opacity-35 transform -translate-y-1/2"></div>
-          
+
           {/* Diagonal cross lines from center */}
           <div className="absolute top-1/2 left-1/2 w-px h-64 bg-gray-200 opacity-30 transform -translate-x-1/2 -translate-y-1/2 rotate-45 origin-center"></div>
           <div className="absolute top-1/2 left-1/2 w-px h-64 bg-gray-200 opacity-30 transform -translate-x-1/2 -translate-y-1/2 -rotate-45 origin-center"></div>
-          
+
           {/* Corner accent lines */}
-          <div className="absolute top-10 left-10 w-16 h-px bg-yellow-400 opacity-60"></div>
-          <div className="absolute top-10 left-10 w-px h-16 bg-yellow-400 opacity-60"></div>
-          <div className="absolute bottom-10 right-10 w-16 h-px bg-yellow-400 opacity-60"></div>
-          <div className="absolute bottom-10 right-10 w-px h-16 bg-yellow-400 opacity-60"></div>
-          
+          <div className="absolute top-10 left-10 w-16 h-px bg-primary-400 opacity-60"></div>
+          <div className="absolute top-10 left-10 w-px h-16 bg-primary-400 opacity-60"></div>
+          <div className="absolute bottom-10 right-10 w-16 h-px bg-primary-400 opacity-60"></div>
+          <div className="absolute bottom-10 right-10 w-px h-16 bg-primary-400 opacity-60"></div>
+
           {/* Curved accent lines */}
           <div className="absolute top-1/4 left-1/4 w-32 h-px bg-gray-200 opacity-25 transform rotate-12 origin-left"></div>
           <div className="absolute bottom-1/4 right-1/4 w-32 h-px bg-gray-200 opacity-25 transform -rotate-12 origin-right"></div>
-          
+
           {/* Dotted lines */}
-          <div 
+          <div
             className="absolute top-1/3 left-0 w-full h-px opacity-20"
             style={{
-              background: 'repeating-linear-gradient(to right, #9CA3AF 0px, #9CA3AF 8px, transparent 8px, transparent 16px)'
+              background:
+                "repeating-linear-gradient(to right, #9CA3AF 0px, #9CA3AF 8px, transparent 8px, transparent 16px)",
             }}
           ></div>
-          <div 
+          <div
             className="absolute bottom-1/3 left-0 w-full h-px opacity-20"
             style={{
-              background: 'repeating-linear-gradient(to right, #9CA3AF 0px, #9CA3AF 8px, transparent 8px, transparent 16px)'
+              background:
+                "repeating-linear-gradient(to right, #9CA3AF 0px, #9CA3AF 8px, transparent 8px, transparent 16px)",
             }}
           ></div>
         </div>
@@ -347,7 +349,7 @@ const Home = () => {
                     key={index}
                     className="flex items-start space-x-3 bg-white p-4 rounded-lg border border-gray-200 hover:border-gray-300 transition-all duration-300 hover:shadow-md"
                   >
-                    <CheckCircle className="h-6 w-6 text-yellow-500 mt-0.5 flex-shrink-0" />
+                    <CheckCircle className="h-6 w-6 text-secondary mt-0.5 flex-shrink-0" />
                     <span className="text-gray-700">{benefit}</span>
                   </div>
                 ))}
@@ -357,26 +359,26 @@ const Home = () => {
               <div className="bg-white rounded-2xl p-8 border border-gray-200 shadow-lg">
                 <div className="grid grid-cols-2 gap-6">
                   <div className="bg-gray-50 hover:bg-yellow-50 rounded-xl p-6 transition-all duration-300 group">
-                    <Building2 className="h-8 w-8 text-gray-700 group-hover:text-yellow-500 mb-3 transition-colors duration-300" />
+                    <Building2 className="h-8 w-8 text-gray-700 group-hover:text-secondary mb-3 transition-colors duration-300" />
                     <div className="text-3xl font-bold text-gray-900">
                       +1000
                     </div>
                     <div className="text-sm text-gray-600">Propiedades</div>
                   </div>
                   <div className="bg-gray-50 hover:bg-yellow-50 rounded-xl p-6 transition-all duration-300 group">
-                    <Users className="h-8 w-8 text-gray-700 group-hover:text-yellow-500 mb-3 transition-colors duration-300" />
+                    <Users className="h-8 w-8 text-gray-700 group-hover:text-secondary mb-3 transition-colors duration-300" />
                     <div className="text-3xl font-bold text-gray-900">+500</div>
                     <div className="text-sm text-gray-600">Inmobiliarias</div>
                   </div>
                   <div className="bg-gray-50 hover:bg-yellow-50 rounded-xl p-6 transition-all duration-300 group">
-                    <ShoppingCart className="h-8 w-8 text-gray-700 group-hover:text-yellow-500 mb-3 transition-colors duration-300" />
+                    <ShoppingCart className="h-8 w-8 text-gray-700 group-hover:text-secondary mb-3 transition-colors duration-300" />
                     <div className="text-3xl font-bold text-gray-900">
                       +2000
                     </div>
                     <div className="text-sm text-gray-600">Contratos</div>
                   </div>
                   <div className="bg-gray-50 hover:bg-yellow-50 rounded-xl p-6 transition-all duration-300 group">
-                    <CreditCard className="h-8 w-8 text-gray-700 group-hover:text-yellow-500 mb-3 transition-colors duration-300" />
+                    <CreditCard className="h-8 w-8 text-gray-700 group-hover:text-secondary mb-3 transition-colors duration-300" />
                     <div className="text-3xl font-bold text-gray-900">98%</div>
                     <div className="text-sm text-gray-600">Cobros</div>
                   </div>
@@ -408,13 +410,13 @@ const Home = () => {
                 key={index}
                 className={`relative overflow-hidden transition-all duration-300 hover:-translate-y-2 ${
                   plan.popular
-                    ? "border-2 border-yellow-500 shadow-xl shadow-yellow-500/20 bg-gradient-to-b from-yellow-50 to-white"
+                    ? "border-2 border-primary"
                     : "border border-gray-200 hover:border-gray-300 bg-white hover:shadow-lg"
                 }`}
               >
                 {plan.popular && (
                   <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                    <span className="bg-yellow-500 text-white px-6 py-1.5 rounded-full text-sm font-medium shadow-lg">
+                    <span className="bg-primary text-white px-6 py-1.5 rounded-full text-sm font-medium shadow-lg">
                       Más Popular
                     </span>
                   </div>
@@ -429,7 +431,7 @@ const Home = () => {
                   <div className="mt-6">
                     <span
                       className={`text-4xl font-bold ${
-                        plan.popular ? "text-yellow-600" : "text-gray-900"
+                        plan.popular ? "text-primary" : "text-gray-900"
                       }`}
                     >
                       {plan.price}
@@ -446,7 +448,7 @@ const Home = () => {
                       >
                         <CheckCircle
                           className={`h-5 w-5 flex-shrink-0 ${
-                            plan.popular ? "text-yellow-500" : "text-gray-400"
+                            plan.popular ? "text-primary" : "text-gray-400"
                           }`}
                         />
                         <span className="text-gray-700">{feature}</span>
@@ -457,7 +459,7 @@ const Home = () => {
                     <Button
                       className={`w-full py-6 text-lg font-semibold transition-all duration-300 ${
                         plan.popular
-                          ? "bg-yellow-500 hover:bg-yellow-600 text-white shadow-lg hover:shadow-yellow-500/30"
+                          ? "bg-secondary hover:bg-primary/90 text-white shadow-lg hover:shadow-primary/30"
                           : "bg-gray-100 text-gray-900 hover:bg-gray-200 border border-gray-200 hover:border-gray-300"
                       }`}
                     >
@@ -472,13 +474,10 @@ const Home = () => {
       </section>
 
       {/* CTA Section */}
-      <section
-        id="contact"
-        className="relative bg-gray-50 py-24"
-      >
+      <section id="contact" className="relative bg-gray-50 py-24">
         {/* Blur gradient overlay at top */}
         <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-white/80 via-white/40 to-transparent backdrop-blur-sm pointer-events-none"></div>
-        
+
         <div className="container mx-auto px-4 text-center relative z-10">
           <div className="max-w-3xl mx-auto space-y-8">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
@@ -492,7 +491,7 @@ const Home = () => {
               <Link to="/register">
                 <Button
                   size="lg"
-                  className="text-lg px-10 py-6 bg-yellow-500 text-white hover:bg-yellow-600 transition-colors duration-300"
+                  className="text-lg px-10 py-6 bg-primary text-white hover:bg-secondaary transition-colors duration-300"
                 >
                   Comenzar Prueba Gratuita
                   <ArrowRight className="ml-2 h-5 w-5" />

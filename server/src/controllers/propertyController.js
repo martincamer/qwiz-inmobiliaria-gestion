@@ -7,32 +7,32 @@ import mongoose from "mongoose";
 export const crearPropiedad = async (req, res) => {
   try {
     const nuevaPropiedad = new Property(req.body);
-    
+
     // Verificar que el propietario existe
-    if (nuevaPropiedad.propietario) {
-      const propietarioExiste = await Owner.findById(nuevaPropiedad.propietario);
+    if (nuevaPropiedad.owner) {
+      const propietarioExiste = await Owner.findById(nuevaPropiedad.owner);
       if (!propietarioExiste) {
         return res.status(400).json({
           success: false,
-          message: "El propietario especificado no existe"
+          message: "El propietario especificado no existe",
         });
       }
     }
 
     const propiedadGuardada = await nuevaPropiedad.save();
-    await propiedadGuardada.populate('propietario', 'nombre apellido email telefono');
-    
+    await propiedadGuardada.populate("owner", "nombre apellido email telefono");
+
     res.status(201).json({
       success: true,
       message: "Propiedad creada exitosamente",
-      data: propiedadGuardada
+      data: propiedadGuardada,
     });
   } catch (error) {
     console.error("Error al crear propiedad:", error);
     res.status(400).json({
       success: false,
       message: "Error al crear la propiedad",
-      error: error.message
+      error: error.message,
     });
   }
 };
@@ -53,54 +53,74 @@ export const obtenerPropiedades = async (req, res) => {
       habitaciones,
       banos,
       busqueda,
-      ordenarPor = 'fechaCreacion',
-      orden = 'desc'
+      ordenarPor = "fechaCreacion",
+      orden = "desc",
     } = req.query;
 
     // Construir filtros
     const filtros = {};
-    
-    if (tipo) filtros.tipo = tipo;
-    if (estado) filtros.estado = estado;
-    if (propietario) filtros.propietario = propietario;
-    if (ciudad) filtros['direccion.ciudad'] = new RegExp(ciudad, 'i');
-    if (barrio) filtros['direccion.barrio'] = new RegExp(barrio, 'i');
-    if (habitaciones) filtros['caracteristicas.habitaciones'] = parseInt(habitaciones);
-    if (banos) filtros['caracteristicas.banos'] = parseInt(banos);
+
+    if (tipo) filtros.type = tipo;
+    if (estado) filtros.status = estado;
+    if (propietario) filtros.owner = propietario;
+    if (ciudad) filtros.city = new RegExp(ciudad, "i");
+    if (barrio) filtros.neighborhood = new RegExp(barrio, "i");
+    if (habitaciones)
+      filtros["characteristics.bedrooms"] = parseInt(habitaciones);
+    if (banos) filtros["characteristics.bathrooms"] = parseInt(banos);
 
     // Filtro de precio
     if (precioMin || precioMax) {
-      filtros['precio.monto'] = {};
-      if (precioMin) filtros['precio.monto'].$gte = parseFloat(precioMin);
-      if (precioMax) filtros['precio.monto'].$lte = parseFloat(precioMax);
+      filtros.$or = [];
+      if (precioMin || precioMax) {
+        const saleFilter = {};
+        const rentFilter = {};
+        if (precioMin) {
+          saleFilter["pricing.salePrice"] = { $gte: parseFloat(precioMin) };
+          rentFilter["pricing.rentPrice"] = { $gte: parseFloat(precioMin) };
+        }
+        if (precioMax) {
+          if (saleFilter["pricing.salePrice"]) {
+            saleFilter["pricing.salePrice"].$lte = parseFloat(precioMax);
+          } else {
+            saleFilter["pricing.salePrice"] = { $lte: parseFloat(precioMax) };
+          }
+          if (rentFilter["pricing.rentPrice"]) {
+            rentFilter["pricing.rentPrice"].$lte = parseFloat(precioMax);
+          } else {
+            rentFilter["pricing.rentPrice"] = { $lte: parseFloat(precioMax) };
+          }
+        }
+        filtros.$or.push(saleFilter, rentFilter);
+      }
     }
 
     // Búsqueda de texto
     if (busqueda) {
       filtros.$or = [
-        { titulo: new RegExp(busqueda, 'i') },
-        { descripcion: new RegExp(busqueda, 'i') },
-        { 'direccion.calle': new RegExp(busqueda, 'i') },
-        { 'direccion.ciudad': new RegExp(busqueda, 'i') },
-        { 'direccion.barrio': new RegExp(busqueda, 'i') }
+        { title: new RegExp(busqueda, "i") },
+        { description: new RegExp(busqueda, "i") },
+        { address: new RegExp(busqueda, "i") },
+        { city: new RegExp(busqueda, "i") },
+        { neighborhood: new RegExp(busqueda, "i") },
       ];
     }
 
     // Configurar ordenamiento
     const sortOptions = {};
-    sortOptions[ordenarPor] = orden === 'desc' ? -1 : 1;
+    sortOptions[ordenarPor] = orden === "desc" ? -1 : 1;
 
     // Ejecutar consulta con paginación
     const skip = (parseInt(page) - 1) * parseInt(limit);
-    
+
     const [propiedades, total] = await Promise.all([
       Property.find(filtros)
-        .populate('propietario', 'nombre apellido email telefono')
-        .populate('inquilinoActual', 'nombre apellido email telefono')
+        .populate("owner", "nombre apellido email telefono")
+        .populate("currentTenant", "nombre apellido email telefono")
         .sort(sortOptions)
         .skip(skip)
         .limit(parseInt(limit)),
-      Property.countDocuments(filtros)
+      Property.countDocuments(filtros),
     ]);
 
     res.json({
@@ -110,15 +130,15 @@ export const obtenerPropiedades = async (req, res) => {
         currentPage: parseInt(page),
         totalPages: Math.ceil(total / parseInt(limit)),
         totalItems: total,
-        itemsPerPage: parseInt(limit)
-      }
+        itemsPerPage: parseInt(limit),
+      },
     });
   } catch (error) {
     console.error("Error al obtener propiedades:", error);
     res.status(500).json({
       success: false,
       message: "Error al obtener las propiedades",
-      error: error.message
+      error: error.message,
     });
   }
 };
@@ -131,35 +151,35 @@ export const obtenerPropiedadPorId = async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({
         success: false,
-        message: "ID de propiedad inválido"
+        message: "ID de propiedad inválido",
       });
     }
 
     const propiedad = await Property.findById(id)
-      .populate('propietario', 'nombre apellido email telefono direccion')
-      .populate('inquilinoActual', 'nombre apellido email telefono')
-      .populate('historialInquilinos.inquilino', 'nombre apellido email');
+      .populate("owner", "nombre apellido email telefono direccion")
+      .populate("currentTenant", "nombre apellido email telefono")
+      .populate("contractHistory.tenant", "nombre apellido email");
 
     if (!propiedad) {
       return res.status(404).json({
         success: false,
-        message: "Propiedad no encontrada"
+        message: "Propiedad no encontrada",
       });
     }
 
     // Incrementar contador de vistas
-    await propiedad.incrementarVistas();
+    await propiedad.incrementViews();
 
     res.json({
       success: true,
-      data: propiedad
+      data: propiedad,
     });
   } catch (error) {
     console.error("Error al obtener propiedad:", error);
     res.status(500).json({
       success: false,
       message: "Error al obtener la propiedad",
-      error: error.message
+      error: error.message,
     });
   }
 };
@@ -172,45 +192,45 @@ export const actualizarPropiedad = async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({
         success: false,
-        message: "ID de propiedad inválido"
+        message: "ID de propiedad inválido",
       });
     }
 
     // Verificar que el propietario existe si se está actualizando
-    if (req.body.propietario) {
-      const propietarioExiste = await Owner.findById(req.body.propietario);
+    if (req.body.owner) {
+      const propietarioExiste = await Owner.findById(req.body.owner);
       if (!propietarioExiste) {
         return res.status(400).json({
           success: false,
-          message: "El propietario especificado no existe"
+          message: "El propietario especificado no existe",
         });
       }
     }
 
     const propiedadActualizada = await Property.findByIdAndUpdate(
       id,
-      { ...req.body, fechaActualizacion: new Date() },
+      { ...req.body, updatedAt: new Date() },
       { new: true, runValidators: true }
-    ).populate('propietario', 'nombre apellido email telefono');
+    ).populate("owner", "nombre apellido email telefono");
 
     if (!propiedadActualizada) {
       return res.status(404).json({
         success: false,
-        message: "Propiedad no encontrada"
+        message: "Propiedad no encontrada",
       });
     }
 
     res.json({
       success: true,
       message: "Propiedad actualizada exitosamente",
-      data: propiedadActualizada
+      data: propiedadActualizada,
     });
   } catch (error) {
     console.error("Error al actualizar propiedad:", error);
     res.status(400).json({
       success: false,
       message: "Error al actualizar la propiedad",
-      error: error.message
+      error: error.message,
     });
   }
 };
@@ -223,24 +243,24 @@ export const eliminarPropiedad = async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({
         success: false,
-        message: "ID de propiedad inválido"
+        message: "ID de propiedad inválido",
       });
     }
 
     const propiedad = await Property.findById(id);
-    
+
     if (!propiedad) {
       return res.status(404).json({
         success: false,
-        message: "Propiedad no encontrada"
+        message: "Propiedad no encontrada",
       });
     }
 
     // Verificar si la propiedad tiene inquilino activo
-    if (propiedad.inquilinoActual) {
+    if (propiedad.currentTenant) {
       return res.status(400).json({
         success: false,
-        message: "No se puede eliminar una propiedad con inquilino activo"
+        message: "No se puede eliminar una propiedad con inquilino activo",
       });
     }
 
@@ -248,14 +268,14 @@ export const eliminarPropiedad = async (req, res) => {
 
     res.json({
       success: true,
-      message: "Propiedad eliminada exitosamente"
+      message: "Propiedad eliminada exitosamente",
     });
   } catch (error) {
     console.error("Error al eliminar propiedad:", error);
     res.status(500).json({
       success: false,
       message: "Error al eliminar la propiedad",
-      error: error.message
+      error: error.message,
     });
   }
 };
@@ -266,50 +286,53 @@ export const asignarInquilino = async (req, res) => {
     const { id } = req.params;
     const { inquilinoId, fechaInicio, fechaFin, deposito } = req.body;
 
-    if (!mongoose.Types.ObjectId.isValid(id) || !mongoose.Types.ObjectId.isValid(inquilinoId)) {
+    if (
+      !mongoose.Types.ObjectId.isValid(id) ||
+      !mongoose.Types.ObjectId.isValid(inquilinoId)
+    ) {
       return res.status(400).json({
         success: false,
-        message: "ID inválido"
+        message: "ID inválido",
       });
     }
 
     const [propiedad, inquilino] = await Promise.all([
       Property.findById(id),
-      Tenant.findById(inquilinoId)
+      Tenant.findById(inquilinoId),
     ]);
 
     if (!propiedad) {
       return res.status(404).json({
         success: false,
-        message: "Propiedad no encontrada"
+        message: "Propiedad no encontrada",
       });
     }
 
     if (!inquilino) {
       return res.status(404).json({
         success: false,
-        message: "Inquilino no encontrado"
+        message: "Inquilino no encontrado",
       });
     }
 
-    if (propiedad.inquilinoActual) {
+    if (propiedad.currentTenant) {
       return res.status(400).json({
         success: false,
-        message: "La propiedad ya tiene un inquilino activo"
+        message: "La propiedad ya tiene un inquilino activo",
       });
     }
 
     // Asignar inquilino
-    propiedad.inquilinoActual = inquilinoId;
-    propiedad.estado = 'ocupada';
-    
+    propiedad.currentTenant = inquilinoId;
+    propiedad.status = "ocupada";
+
     // Agregar al historial
-    propiedad.historialInquilinos.push({
-      inquilino: inquilinoId,
-      fechaInicio: new Date(fechaInicio),
-      fechaFin: fechaFin ? new Date(fechaFin) : null,
-      deposito: deposito || 0,
-      activo: true
+    propiedad.contractHistory.push({
+      tenant: inquilinoId,
+      startDate: new Date(fechaInicio),
+      endDate: fechaFin ? new Date(fechaFin) : null,
+      deposit: deposito || 0,
+      active: true,
     });
 
     await propiedad.save();
@@ -319,20 +342,20 @@ export const asignarInquilino = async (req, res) => {
     await inquilino.save();
 
     const propiedadActualizada = await Property.findById(id)
-      .populate('propietario', 'nombre apellido email telefono')
-      .populate('inquilinoActual', 'nombre apellido email telefono');
+      .populate("owner", "nombre apellido email telefono")
+      .populate("currentTenant", "nombre apellido email telefono");
 
     res.json({
       success: true,
       message: "Inquilino asignado exitosamente",
-      data: propiedadActualizada
+      data: propiedadActualizada,
     });
   } catch (error) {
     console.error("Error al asignar inquilino:", error);
     res.status(500).json({
       success: false,
       message: "Error al asignar inquilino",
-      error: error.message
+      error: error.message,
     });
   }
 };
@@ -346,7 +369,7 @@ export const liberarInquilino = async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({
         success: false,
-        message: "ID de propiedad inválido"
+        message: "ID de propiedad inválido",
       });
     }
 
@@ -355,52 +378,54 @@ export const liberarInquilino = async (req, res) => {
     if (!propiedad) {
       return res.status(404).json({
         success: false,
-        message: "Propiedad no encontrada"
+        message: "Propiedad no encontrada",
       });
     }
 
-    if (!propiedad.inquilinoActual) {
+    if (!propiedad.currentTenant) {
       return res.status(400).json({
         success: false,
-        message: "La propiedad no tiene inquilino activo"
+        message: "La propiedad no tiene inquilino activo",
       });
     }
 
-    const inquilinoId = propiedad.inquilinoActual;
+    const inquilinoId = propiedad.currentTenant;
 
     // Actualizar historial
-    const historialActivo = propiedad.historialInquilinos.find(h => h.activo);
+    const historialActivo = propiedad.contractHistory.find((h) => h.active);
     if (historialActivo) {
-      historialActivo.fechaFin = fechaFin ? new Date(fechaFin) : new Date();
-      historialActivo.activo = false;
-      if (motivo) historialActivo.motivo = motivo;
+      historialActivo.endDate = fechaFin ? new Date(fechaFin) : new Date();
+      historialActivo.active = false;
+      if (motivo) historialActivo.reason = motivo;
     }
 
     // Liberar propiedad
-    propiedad.inquilinoActual = null;
-    propiedad.estado = 'disponible';
-    
+    propiedad.currentTenant = null;
+    propiedad.status = "disponible";
+
     await propiedad.save();
 
     // Actualizar inquilino
     await Tenant.findByIdAndUpdate(inquilinoId, {
-      propiedadActual: null
+      propiedadActual: null,
     });
 
-    const propiedadActualizada = await Property.findById(id)
-      .populate('propietario', 'nombre apellido email telefono');
+    const propiedadActualizada = await Property.findById(id).populate(
+      "owner",
+      "nombre apellido email telefono"
+    );
 
     res.json({
       success: true,
       message: "Inquilino liberado exitosamente",
-      data: propiedadActualizada
+      data: propiedadActualizada,
     });
   } catch (error) {
     console.error("Error al liberar inquilino:", error);
     res.status(500).json({
       success: false,
       message: "Error al liberar inquilino",
-      error: error.message
+      error: error.message,
     });
   }
 };
@@ -413,24 +438,24 @@ export const obtenerPropiedadesPorPropietario = async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(propietarioId)) {
       return res.status(400).json({
         success: false,
-        message: "ID de propietario inválido"
+        message: "ID de propietario inválido",
       });
     }
 
-    const propiedades = await Property.find({ propietario: propietarioId })
-      .populate('inquilinoActual', 'nombre apellido email telefono')
-      .sort({ fechaCreacion: -1 });
+    const propiedades = await Property.find({ owner: propietarioId })
+      .populate("currentTenant", "nombre apellido email telefono")
+      .sort({ createdAt: -1 });
 
     res.json({
       success: true,
-      data: propiedades
+      data: propiedades,
     });
   } catch (error) {
     console.error("Error al obtener propiedades por propietario:", error);
     res.status(500).json({
       success: false,
       message: "Error al obtener las propiedades",
-      error: error.message
+      error: error.message,
     });
   }
 };
@@ -443,16 +468,16 @@ export const obtenerPropiedadesSimilares = async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({
         success: false,
-        message: "ID de propiedad inválido"
+        message: "ID de propiedad inválido",
       });
     }
 
     const propiedad = await Property.findById(id);
-    
+
     if (!propiedad) {
       return res.status(404).json({
         success: false,
-        message: "Propiedad no encontrada"
+        message: "Propiedad no encontrada",
       });
     }
 
@@ -460,14 +485,14 @@ export const obtenerPropiedadesSimilares = async (req, res) => {
 
     res.json({
       success: true,
-      data: similares
+      data: similares,
     });
   } catch (error) {
     console.error("Error al obtener propiedades similares:", error);
     res.status(500).json({
       success: false,
       message: "Error al obtener propiedades similares",
-      error: error.message
+      error: error.message,
     });
   }
 };
@@ -482,21 +507,17 @@ export const obtenerEstadisticasPropiedades = async (req, res) => {
       propiedadesMantenimiento,
       estadisticasPorTipo,
       estadisticasPorCiudad,
-      ingresosTotales
+      ingresosTotales,
     ] = await Promise.all([
       Property.countDocuments(),
-      Property.countDocuments({ estado: 'disponible' }),
-      Property.countDocuments({ estado: 'ocupada' }),
-      Property.countDocuments({ estado: 'mantenimiento' }),
+      Property.countDocuments({ status: "disponible" }),
+      Property.countDocuments({ status: "ocupada" }),
+      Property.countDocuments({ status: "mantenimiento" }),
+      Property.aggregate([{ $group: { _id: "$type", count: { $sum: 1 } } }]),
+      Property.aggregate([{ $group: { _id: "$city", count: { $sum: 1 } } }]),
       Property.aggregate([
-        { $group: { _id: '$tipo', count: { $sum: 1 } } }
+        { $group: { _id: null, total: { $sum: "$pricing.salePrice" } } },
       ]),
-      Property.aggregate([
-        { $group: { _id: '$direccion.ciudad', count: { $sum: 1 } } }
-      ]),
-      Property.aggregate([
-        { $group: { _id: null, total: { $sum: '$precio.monto' } } }
-      ])
     ]);
 
     res.json({
@@ -506,19 +527,19 @@ export const obtenerEstadisticasPropiedades = async (req, res) => {
           total: totalPropiedades,
           disponibles: propiedadesDisponibles,
           ocupadas: propiedadesOcupadas,
-          mantenimiento: propiedadesMantenimiento
+          mantenimiento: propiedadesMantenimiento,
         },
         porTipo: estadisticasPorTipo,
         porCiudad: estadisticasPorCiudad,
-        ingresosPotenciales: ingresosTotales[0]?.total || 0
-      }
+        ingresosPotenciales: ingresosTotales[0]?.total || 0,
+      },
     });
   } catch (error) {
     console.error("Error al obtener estadísticas:", error);
     res.status(500).json({
       success: false,
       message: "Error al obtener estadísticas",
-      error: error.message
+      error: error.message,
     });
   }
 };
@@ -531,14 +552,14 @@ export const busquedaAvanzada = async (req, res) => {
 
     res.json({
       success: true,
-      data: propiedades
+      data: propiedades,
     });
   } catch (error) {
     console.error("Error en búsqueda avanzada:", error);
     res.status(500).json({
       success: false,
       message: "Error en la búsqueda avanzada",
-      error: error.message
+      error: error.message,
     });
   }
 };

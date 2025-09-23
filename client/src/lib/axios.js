@@ -24,25 +24,25 @@ clientAxios.interceptors.request.use(
 );
 
 // Interceptor para manejar respuestas y errores
-clientAxios.interceptors.response.use(
-  (response) => {
-    return response;
-  },
-  (error) => {
-    // Si el token es inválido o expiró, redirigir al login
-    if (error.response?.status === 401) {
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-      window.location.href = "/login";
-    }
+// clientAxios.interceptors.response.use(
+//   (response) => {
+//     return response;
+//   },
+//   (error) => {
+//     // Si el token es inválido o expiró, redirigir al login
+//     if (error.response?.status === 401) {
+//       localStorage.removeItem("token");
+//       localStorage.removeItem("user");
+//       window.location.href = "/login";
+//     }
 
-    // Manejar otros errores de red
-    if (!error.response) {
-      console.error("Error de red:", error.message);
-    }
+//     // Manejar otros errores de red
+//     if (!error.response) {
+//       console.error("Error de red:", error.message);
+//     }
 
-    return Promise.reject(error);
-  }
-);
+//     return Promise.reject(error);
+//   }
+// );
 
 export default clientAxios;

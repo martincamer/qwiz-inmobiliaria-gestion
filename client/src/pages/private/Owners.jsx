@@ -1,36 +1,69 @@
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { 
-  Plus, 
-  Search, 
-  Filter, 
-  MoreHorizontal, 
-  Eye, 
-  Edit, 
-  Trash2, 
-  Users, 
-  Building, 
-  Phone, 
+import { useState, useEffect } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Plus,
+  Search,
+  Filter,
+  MoreHorizontal,
+  Eye,
+  Edit,
+  Trash2,
+  Users,
+  Building,
+  Phone,
   Mail,
   ChevronLeft,
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
-  AlertTriangle
-} from 'lucide-react';
-import { useOwners } from '@/contexts/OwnersContext';
-import CreateOwnerModal from '@/components/modals/CreateOwnerModal';
-import EditOwnerModal from '@/components/modals/EditOwnerModal';
-import ViewOwnerModal from '@/components/modals/ViewOwnerModal';
-import { toast } from 'sonner';
+  AlertTriangle,
+} from "lucide-react";
+import { useOwners } from "@/contexts/OwnersContext";
+import CreateOwnerModal from "@/components/modals/CreateOwnerModal";
+import EditOwnerModal from "@/components/modals/EditOwnerModal";
+import ViewOwnerModal from "@/components/modals/ViewOwnerModal";
+import { toast } from "sonner";
 
 const Owners = () => {
   const {
@@ -43,7 +76,7 @@ const Owners = () => {
     deleteOwner,
     updateFilters,
     updatePagination,
-    clearError
+    clearError,
   } = useOwners();
 
   const [selectedOwner, setSelectedOwner] = useState(null);
@@ -53,9 +86,9 @@ const Owners = () => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [ownerToDelete, setOwnerToDelete] = useState(null);
   const [localFilters, setLocalFilters] = useState({
-    search: '',
-    activo: '',
-    tipoIdentificacion: ''
+    search: "",
+    activo: "all",
+    tipoIdentificacion: "all",
   });
 
   // Limpiar errores al montar el componente
@@ -65,19 +98,32 @@ const Owners = () => {
 
   // Manejar búsqueda
   const handleSearch = () => {
-    updateFilters(localFilters);
+    const filtersToSend = {
+      ...localFilters,
+      activo: localFilters.activo === "all" ? "" : localFilters.activo,
+      tipoIdentificacion:
+        localFilters.tipoIdentificacion === "all"
+          ? ""
+          : localFilters.tipoIdentificacion,
+    };
+    updateFilters(filtersToSend);
     updatePagination({ ...pagination, currentPage: 1 });
   };
 
   // Limpiar filtros
   const clearFilters = () => {
     const emptyFilters = {
-      search: '',
-      activo: '',
-      tipoIdentificacion: ''
+      search: "",
+      activo: "all",
+      tipoIdentificacion: "all",
+    };
+    const filtersToSend = {
+      search: "",
+      activo: "",
+      tipoIdentificacion: "",
     };
     setLocalFilters(emptyFilters);
-    updateFilters(emptyFilters);
+    updateFilters(filtersToSend);
     updatePagination({ ...pagination, currentPage: 1 });
   };
 
@@ -93,16 +139,16 @@ const Owners = () => {
     try {
       const result = await deleteOwner(ownerToDelete._id);
       if (result.success) {
-        toast.success('Propietario eliminado exitosamente');
+        toast.success("Propietario eliminado exitosamente");
         setShowDeleteDialog(false);
         setOwnerToDelete(null);
         // Recargar la lista
         getOwners();
       } else {
-        toast.error(result.error || 'Error al eliminar propietario');
+        toast.error(result.error || "Error al eliminar propietario");
       }
     } catch (error) {
-      toast.error('Error al eliminar propietario');
+      toast.error("Error al eliminar propietario");
     }
   };
 
@@ -126,10 +172,10 @@ const Owners = () => {
 
   // Formatear fecha
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('es-ES', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
+    return new Date(dateString).toLocaleDateString("es-ES", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
     });
   };
 
@@ -149,14 +195,17 @@ const Owners = () => {
   // Obtener badge de tipo de identificación
   const getIdTypeBadge = (tipo) => {
     const colors = {
-      'DNI': 'bg-blue-100 text-blue-800',
-      'CUIT': 'bg-purple-100 text-purple-800',
-      'CUIL': 'bg-orange-100 text-orange-800',
-      'RAZON_SOCIAL': 'bg-gray-100 text-gray-800'
+      DNI: "bg-blue-100 text-blue-800",
+      CUIT: "bg-purple-100 text-purple-800",
+      CUIL: "bg-orange-100 text-orange-800",
+      RAZON_SOCIAL: "bg-gray-100 text-gray-800",
     };
 
     return (
-      <Badge variant="outline" className={colors[tipo] || 'bg-gray-100 text-gray-800'}>
+      <Badge
+        variant="outline"
+        className={colors[tipo] || "bg-gray-100 text-gray-800"}
+      >
         {tipo}
       </Badge>
     );
@@ -194,21 +243,25 @@ const Owners = () => {
                 id="search"
                 placeholder="Nombre, email, identificación..."
                 value={localFilters.search}
-                onChange={(e) => setLocalFilters({ ...localFilters, search: e.target.value })}
-                onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+                onChange={(e) =>
+                  setLocalFilters({ ...localFilters, search: e.target.value })
+                }
+                onKeyPress={(e) => e.key === "Enter" && handleSearch()}
               />
             </div>
             <div className="space-y-2">
               <Label>Estado</Label>
               <Select
                 value={localFilters.activo}
-                onValueChange={(value) => setLocalFilters({ ...localFilters, activo: value })}
+                onValueChange={(value) =>
+                  setLocalFilters({ ...localFilters, activo: value })
+                }
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Todos los estados" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todos los estados</SelectItem>
+                  <SelectItem value="all">Todos los estados</SelectItem>
                   <SelectItem value="true">Activo</SelectItem>
                   <SelectItem value="false">Inactivo</SelectItem>
                 </SelectContent>
@@ -218,13 +271,18 @@ const Owners = () => {
               <Label>Tipo de Identificación</Label>
               <Select
                 value={localFilters.tipoIdentificacion}
-                onValueChange={(value) => setLocalFilters({ ...localFilters, tipoIdentificacion: value })}
+                onValueChange={(value) =>
+                  setLocalFilters({
+                    ...localFilters,
+                    tipoIdentificacion: value,
+                  })
+                }
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Todos los tipos" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todos los tipos</SelectItem>
+                  <SelectItem value="all">Todos los tipos</SelectItem>
                   <SelectItem value="DNI">DNI</SelectItem>
                   <SelectItem value="CUIT">CUIT</SelectItem>
                   <SelectItem value="CUIL">CUIL</SelectItem>
@@ -261,7 +319,9 @@ const Owners = () => {
           ) : error ? (
             <div className="flex flex-col items-center justify-center py-8 text-center">
               <AlertTriangle className="h-12 w-12 text-red-500 mb-4" />
-              <h3 className="text-lg font-semibold text-red-700 mb-2">Error al cargar propietarios</h3>
+              <h3 className="text-lg font-semibold text-red-700 mb-2">
+                Error al cargar propietarios
+              </h3>
               <p className="text-red-600 mb-4">{error}</p>
               <Button onClick={() => getOwners()} variant="outline">
                 Reintentar
@@ -270,8 +330,12 @@ const Owners = () => {
           ) : owners.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-8 text-center">
               <Users className="h-12 w-12 text-gray-400 mb-4" />
-              <h3 className="text-lg font-semibold text-gray-700 mb-2">No hay propietarios</h3>
-              <p className="text-gray-600 mb-4">No se encontraron propietarios con los filtros aplicados</p>
+              <h3 className="text-lg font-semibold text-gray-700 mb-2">
+                No hay propietarios
+              </h3>
+              <p className="text-gray-600 mb-4">
+                No se encontraron propietarios con los filtros aplicados
+              </p>
               <Button onClick={() => setShowCreateModal(true)}>
                 <Plus className="h-4 w-4 mr-2" />
                 Crear Primer Propietario
@@ -330,15 +394,13 @@ const Owners = () => {
                         <TableCell>
                           <div className="flex items-center gap-1">
                             <Building className="h-4 w-4 text-muted-foreground" />
-                            <span>{owner.estadisticas?.totalPropiedades || 0}</span>
+                            <span>
+                              {owner.estadisticas?.totalPropiedades || 0}
+                            </span>
                           </div>
                         </TableCell>
-                        <TableCell>
-                          {getStatusBadge(owner.activo)}
-                        </TableCell>
-                        <TableCell>
-                          {formatDate(owner.fechaRegistro)}
-                        </TableCell>
+                        <TableCell>{getStatusBadge(owner.activo)}</TableCell>
+                        <TableCell>{formatDate(owner.fechaRegistro)}</TableCell>
                         <TableCell className="text-right">
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
@@ -349,16 +411,20 @@ const Owners = () => {
                             <DropdownMenuContent align="end">
                               <DropdownMenuLabel>Acciones</DropdownMenuLabel>
                               <DropdownMenuSeparator />
-                              <DropdownMenuItem onClick={() => openViewModal(owner)}>
+                              <DropdownMenuItem
+                                onClick={() => openViewModal(owner)}
+                              >
                                 <Eye className="mr-2 h-4 w-4" />
                                 Ver Detalles
                               </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => openEditModal(owner)}>
+                              <DropdownMenuItem
+                                onClick={() => openEditModal(owner)}
+                              >
                                 <Edit className="mr-2 h-4 w-4" />
                                 Editar
                               </DropdownMenuItem>
                               <DropdownMenuSeparator />
-                              <DropdownMenuItem 
+                              <DropdownMenuItem
                                 onClick={() => openDeleteDialog(owner)}
                                 className="text-red-600"
                               >
@@ -378,9 +444,14 @@ const Owners = () => {
               {pagination.totalPages > 1 && (
                 <div className="flex items-center justify-between px-2 py-4">
                   <div className="text-sm text-muted-foreground">
-                    Mostrando {((pagination.currentPage - 1) * pagination.itemsPerPage) + 1} a{' '}
-                    {Math.min(pagination.currentPage * pagination.itemsPerPage, pagination.totalItems)} de{' '}
-                    {pagination.totalItems} propietarios
+                    Mostrando{" "}
+                    {(pagination.currentPage - 1) * pagination.itemsPerPage + 1}{" "}
+                    a{" "}
+                    {Math.min(
+                      pagination.currentPage * pagination.itemsPerPage,
+                      pagination.totalItems
+                    )}{" "}
+                    de {pagination.totalItems} propietarios
                   </div>
                   <div className="flex items-center space-x-2">
                     <Button
@@ -394,7 +465,9 @@ const Owners = () => {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => handlePageChange(pagination.currentPage - 1)}
+                      onClick={() =>
+                        handlePageChange(pagination.currentPage - 1)
+                      }
                       disabled={pagination.currentPage === 1}
                     >
                       <ChevronLeft className="h-4 w-4" />
@@ -408,8 +481,12 @@ const Owners = () => {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => handlePageChange(pagination.currentPage + 1)}
-                      disabled={pagination.currentPage === pagination.totalPages}
+                      onClick={() =>
+                        handlePageChange(pagination.currentPage + 1)
+                      }
+                      disabled={
+                        pagination.currentPage === pagination.totalPages
+                      }
                     >
                       <ChevronRight className="h-4 w-4" />
                     </Button>
@@ -417,7 +494,9 @@ const Owners = () => {
                       variant="outline"
                       size="sm"
                       onClick={() => handlePageChange(pagination.totalPages)}
-                      disabled={pagination.currentPage === pagination.totalPages}
+                      disabled={
+                        pagination.currentPage === pagination.totalPages
+                      }
                     >
                       <ChevronsRight className="h-4 w-4" />
                     </Button>
@@ -430,8 +509,8 @@ const Owners = () => {
       </Card>
 
       {/* Modales */}
-      <CreateOwnerModal 
-        open={showCreateModal} 
+      <CreateOwnerModal
+        open={showCreateModal}
         onOpenChange={setShowCreateModal}
         onSuccess={() => {
           setShowCreateModal(false);
@@ -441,8 +520,8 @@ const Owners = () => {
 
       {selectedOwner && (
         <>
-          <EditOwnerModal 
-            open={showEditModal} 
+          <EditOwnerModal
+            open={showEditModal}
             onOpenChange={setShowEditModal}
             owner={selectedOwner}
             onSuccess={() => {
@@ -452,8 +531,8 @@ const Owners = () => {
             }}
           />
 
-          <ViewOwnerModal 
-            open={showViewModal} 
+          <ViewOwnerModal
+            open={showViewModal}
             onOpenChange={setShowViewModal}
             owner={selectedOwner}
             onClose={() => {
@@ -470,13 +549,18 @@ const Owners = () => {
           <DialogHeader>
             <DialogTitle>Confirmar Eliminación</DialogTitle>
             <DialogDescription>
-              ¿Estás seguro de que deseas eliminar al propietario{' '}
-              <strong>{ownerToDelete?.nombre} {ownerToDelete?.apellido}</strong>?
-              Esta acción no se puede deshacer.
+              ¿Estás seguro de que deseas eliminar al propietario{" "}
+              <strong>
+                {ownerToDelete?.nombre} {ownerToDelete?.apellido}
+              </strong>
+              ? Esta acción no se puede deshacer.
             </DialogDescription>
           </DialogHeader>
           <div className="flex justify-end gap-2 mt-4">
-            <Button variant="outline" onClick={() => setShowDeleteDialog(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setShowDeleteDialog(false)}
+            >
               Cancelar
             </Button>
             <Button variant="destructive" onClick={handleDelete}>

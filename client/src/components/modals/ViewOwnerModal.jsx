@@ -101,7 +101,7 @@ const ViewOwnerModal = ({ open, onOpenChange, owner, onEdit }) => {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="min-w-6xl max-h-auto h-auto overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Eye className="h-5 w-5" />
@@ -126,8 +126,12 @@ const ViewOwnerModal = ({ open, onOpenChange, owner, onEdit }) => {
             <TabsContent value="personal" className="space-y-4">
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg">Información Personal</CardTitle>
-                  <CardDescription>Datos básicos del propietario</CardDescription>
+                  <CardTitle className="text-lg">
+                    Información Personal
+                  </CardTitle>
+                  <CardDescription>
+                    Datos básicos del propietario
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -135,52 +139,75 @@ const ViewOwnerModal = ({ open, onOpenChange, owner, onEdit }) => {
                       <div className="flex items-center gap-2">
                         <User className="h-4 w-4 text-muted-foreground" />
                         <div>
-                          <p className="text-sm font-medium text-muted-foreground">Nombre Completo</p>
-                          <p className="text-lg font-semibold">{owner.nombre} {owner.apellido}</p>
+                          <p className="text-sm font-medium text-muted-foreground">
+                            Nombre Completo
+                          </p>
+                          <p className="text-lg font-semibold">
+                            {owner.nombre} {owner.apellido}
+                          </p>
                         </div>
                       </div>
-                      
+
                       <div className="flex items-center gap-2">
                         <Mail className="h-4 w-4 text-muted-foreground" />
                         <div>
-                          <p className="text-sm font-medium text-muted-foreground">Email</p>
-                          <p className="text-base">{owner.email || 'No especificado'}</p>
+                          <p className="text-sm font-medium text-muted-foreground">
+                            Email
+                          </p>
+                          <p className="text-base">
+                            {owner.email || "No especificado"}
+                          </p>
                         </div>
                       </div>
-                      
+
                       <div className="flex items-center gap-2">
                         <Phone className="h-4 w-4 text-muted-foreground" />
                         <div>
-                          <p className="text-sm font-medium text-muted-foreground">Teléfono</p>
-                          <p className="text-base">{owner.telefono || 'No especificado'}</p>
+                          <p className="text-sm font-medium text-muted-foreground">
+                            Teléfono
+                          </p>
+                          <p className="text-base">
+                            {owner.telefono || "No especificado"}
+                          </p>
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className="space-y-4">
                       <div className="flex items-center gap-2">
                         <IdCard className="h-4 w-4 text-muted-foreground" />
                         <div>
-                          <p className="text-sm font-medium text-muted-foreground">Identificación</p>
+                          <p className="text-sm font-medium text-muted-foreground">
+                            Identificación
+                          </p>
                           <p className="text-base">
-                            {owner.tipoIdentificacion}: {owner.numeroIdentificacion || 'No especificado'}
+                            {owner.tipoIdentificacion}:{" "}
+                            {owner.numeroIdentificacion || "No especificado"}
                           </p>
                         </div>
                       </div>
-                      
+
                       <div className="flex items-center gap-2">
                         <Calendar className="h-4 w-4 text-muted-foreground" />
                         <div>
-                          <p className="text-sm font-medium text-muted-foreground">Fecha de Registro</p>
-                          <p className="text-base">{formatDate(owner.createdAt)}</p>
+                          <p className="text-sm font-medium text-muted-foreground">
+                            Fecha de Registro
+                          </p>
+                          <p className="text-base">
+                            {formatDate(owner.createdAt)}
+                          </p>
                         </div>
                       </div>
-                      
+
                       <div className="flex items-center gap-2">
                         <Calendar className="h-4 w-4 text-muted-foreground" />
                         <div>
-                          <p className="text-sm font-medium text-muted-foreground">Última Actualización</p>
-                          <p className="text-base">{formatDate(owner.updatedAt)}</p>
+                          <p className="text-sm font-medium text-muted-foreground">
+                            Última Actualización
+                          </p>
+                          <p className="text-base">
+                            {formatDate(owner.updatedAt)}
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -197,46 +224,80 @@ const ViewOwnerModal = ({ open, onOpenChange, owner, onEdit }) => {
                     <MapPin className="h-5 w-5" />
                     Dirección
                   </CardTitle>
-                  <CardDescription>Información de domicilio del propietario</CardDescription>
+                  <CardDescription>
+                    Información de domicilio del propietario
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex items-start gap-2">
                     <Building className="h-4 w-4 text-muted-foreground mt-1" />
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">Dirección Completa</p>
-                      <p className="text-base">{formatAddress(owner.direccion)}</p>
+                      <p className="text-sm font-medium text-muted-foreground">
+                        Dirección Completa
+                      </p>
+                      <p className="text-base">
+                        {formatAddress(owner.direccion)}
+                      </p>
                     </div>
                   </div>
-                  
+
                   {owner.direccion && (
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t">
                       <div>
-                        <p className="text-sm font-medium text-muted-foreground">Calle</p>
-                        <p className="text-base">{owner.direccion.calle || 'No especificado'}</p>
+                        <p className="text-sm font-medium text-muted-foreground">
+                          Calle
+                        </p>
+                        <p className="text-base">
+                          {owner.direccion.calle || "No especificado"}
+                        </p>
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-muted-foreground">Número</p>
-                        <p className="text-base">{owner.direccion.numero || 'No especificado'}</p>
+                        <p className="text-sm font-medium text-muted-foreground">
+                          Número
+                        </p>
+                        <p className="text-base">
+                          {owner.direccion.numero || "No especificado"}
+                        </p>
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-muted-foreground">Piso</p>
-                        <p className="text-base">{owner.direccion.piso || 'No especificado'}</p>
+                        <p className="text-sm font-medium text-muted-foreground">
+                          Piso
+                        </p>
+                        <p className="text-base">
+                          {owner.direccion.piso || "No especificado"}
+                        </p>
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-muted-foreground">Departamento</p>
-                        <p className="text-base">{owner.direccion.departamento || 'No especificado'}</p>
+                        <p className="text-sm font-medium text-muted-foreground">
+                          Departamento
+                        </p>
+                        <p className="text-base">
+                          {owner.direccion.departamento || "No especificado"}
+                        </p>
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-muted-foreground">Ciudad</p>
-                        <p className="text-base">{owner.direccion.ciudad || 'No especificado'}</p>
+                        <p className="text-sm font-medium text-muted-foreground">
+                          Ciudad
+                        </p>
+                        <p className="text-base">
+                          {owner.direccion.ciudad || "No especificado"}
+                        </p>
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-muted-foreground">Provincia</p>
-                        <p className="text-base">{owner.direccion.provincia || 'No especificado'}</p>
+                        <p className="text-sm font-medium text-muted-foreground">
+                          Provincia
+                        </p>
+                        <p className="text-base">
+                          {owner.direccion.provincia || "No especificado"}
+                        </p>
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-muted-foreground">Código Postal</p>
-                        <p className="text-base">{owner.direccion.codigoPostal || 'No especificado'}</p>
+                        <p className="text-sm font-medium text-muted-foreground">
+                          Código Postal
+                        </p>
+                        <p className="text-base">
+                          {owner.direccion.codigoPostal || "No especificado"}
+                        </p>
                       </div>
                     </div>
                   )}
@@ -252,44 +313,71 @@ const ViewOwnerModal = ({ open, onOpenChange, owner, onEdit }) => {
                     <CreditCard className="h-5 w-5" />
                     Información Bancaria
                   </CardTitle>
-                  <CardDescription>Datos bancarios para transferencias</CardDescription>
+                  <CardDescription>
+                    Datos bancarios para transferencias
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {owner.informacionBancaria ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-4">
                         <div>
-                          <p className="text-sm font-medium text-muted-foreground">Banco</p>
-                          <p className="text-base">{owner.informacionBancaria.banco || 'No especificado'}</p>
+                          <p className="text-sm font-medium text-muted-foreground">
+                            Banco
+                          </p>
+                          <p className="text-base">
+                            {owner.informacionBancaria.banco ||
+                              "No especificado"}
+                          </p>
                         </div>
-                        
+
                         <div>
-                          <p className="text-sm font-medium text-muted-foreground">Tipo de Cuenta</p>
+                          <p className="text-sm font-medium text-muted-foreground">
+                            Tipo de Cuenta
+                          </p>
                           <div className="mt-1">
-                            {getAccountTypeBadge(owner.informacionBancaria.tipoCuenta)}
+                            {getAccountTypeBadge(
+                              owner.informacionBancaria.tipoCuenta
+                            )}
                           </div>
                         </div>
-                        
+
                         <div>
-                          <p className="text-sm font-medium text-muted-foreground">Número de Cuenta</p>
-                          <p className="text-base font-mono">{owner.informacionBancaria.numeroCuenta || 'No especificado'}</p>
+                          <p className="text-sm font-medium text-muted-foreground">
+                            Número de Cuenta
+                          </p>
+                          <p className="text-base font-mono">
+                            {owner.informacionBancaria.numeroCuenta ||
+                              "No especificado"}
+                          </p>
                         </div>
                       </div>
-                      
+
                       <div className="space-y-4">
                         <div>
-                          <p className="text-sm font-medium text-muted-foreground">CBU</p>
-                          <p className="text-base font-mono">{owner.informacionBancaria.cbu || 'No especificado'}</p>
+                          <p className="text-sm font-medium text-muted-foreground">
+                            CBU
+                          </p>
+                          <p className="text-base font-mono">
+                            {owner.informacionBancaria.cbu || "No especificado"}
+                          </p>
                         </div>
-                        
+
                         <div>
-                          <p className="text-sm font-medium text-muted-foreground">Alias</p>
-                          <p className="text-base font-mono">{owner.informacionBancaria.alias || 'No especificado'}</p>
+                          <p className="text-sm font-medium text-muted-foreground">
+                            Alias
+                          </p>
+                          <p className="text-base font-mono">
+                            {owner.informacionBancaria.alias ||
+                              "No especificado"}
+                          </p>
                         </div>
                       </div>
                     </div>
                   ) : (
-                    <p className="text-muted-foreground">No hay información bancaria registrada</p>
+                    <p className="text-muted-foreground">
+                      No hay información bancaria registrada
+                    </p>
                   )}
                 </CardContent>
               </Card>
@@ -303,25 +391,36 @@ const ViewOwnerModal = ({ open, onOpenChange, owner, onEdit }) => {
                     <FileText className="h-5 w-5" />
                     Información Fiscal
                   </CardTitle>
-                  <CardDescription>Datos fiscales y tributarios</CardDescription>
+                  <CardDescription>
+                    Datos fiscales y tributarios
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {owner.informacionFiscal ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
-                        <p className="text-sm font-medium text-muted-foreground">Condición IVA</p>
+                        <p className="text-sm font-medium text-muted-foreground">
+                          Condición IVA
+                        </p>
                         <div className="mt-1">
                           {getIvaBadge(owner.informacionFiscal.condicionIva)}
                         </div>
                       </div>
-                      
+
                       <div>
-                        <p className="text-sm font-medium text-muted-foreground">Ingresos Brutos</p>
-                        <p className="text-base font-mono">{owner.informacionFiscal.ingresosBrutos || 'No especificado'}</p>
+                        <p className="text-sm font-medium text-muted-foreground">
+                          Ingresos Brutos
+                        </p>
+                        <p className="text-base font-mono">
+                          {owner.informacionFiscal.ingresosBrutos ||
+                            "No especificado"}
+                        </p>
                       </div>
                     </div>
                   ) : (
-                    <p className="text-muted-foreground">No hay información fiscal registrada</p>
+                    <p className="text-muted-foreground">
+                      No hay información fiscal registrada
+                    </p>
                   )}
                 </CardContent>
               </Card>
@@ -335,15 +434,19 @@ const ViewOwnerModal = ({ open, onOpenChange, owner, onEdit }) => {
                     <Settings className="h-5 w-5" />
                     Configuración
                   </CardTitle>
-                  <CardDescription>Preferencias y notas adicionales</CardDescription>
+                  <CardDescription>
+                    Preferencias y notas adicionales
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-4">
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">Notas</p>
+                      <p className="text-sm font-medium text-muted-foreground">
+                        Notas
+                      </p>
                       <div className="mt-1 p-3 bg-muted rounded-md">
                         <p className="text-base whitespace-pre-wrap">
-                          {owner.notas || 'No hay notas adicionales'}
+                          {owner.notas || "No hay notas adicionales"}
                         </p>
                       </div>
                     </div>
@@ -351,7 +454,9 @@ const ViewOwnerModal = ({ open, onOpenChange, owner, onEdit }) => {
                     <Separator />
 
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground mb-3">Configuración de Notificaciones</p>
+                      <p className="text-sm font-medium text-muted-foreground mb-3">
+                        Configuración de Notificaciones
+                      </p>
                       <div className="space-y-2">
                         <div className="flex items-center gap-2">
                           {owner.configuracionNotificaciones?.email ? (
@@ -359,25 +464,31 @@ const ViewOwnerModal = ({ open, onOpenChange, owner, onEdit }) => {
                           ) : (
                             <XCircle className="h-4 w-4 text-red-500" />
                           )}
-                          <span className="text-base">Notificaciones por Email</span>
+                          <span className="text-base">
+                            Notificaciones por Email
+                          </span>
                         </div>
-                        
+
                         <div className="flex items-center gap-2">
                           {owner.configuracionNotificaciones?.sms ? (
                             <CheckCircle className="h-4 w-4 text-green-500" />
                           ) : (
                             <XCircle className="h-4 w-4 text-red-500" />
                           )}
-                          <span className="text-base">Notificaciones por SMS</span>
+                          <span className="text-base">
+                            Notificaciones por SMS
+                          </span>
                         </div>
-                        
+
                         <div className="flex items-center gap-2">
                           {owner.configuracionNotificaciones?.whatsapp ? (
                             <CheckCircle className="h-4 w-4 text-green-500" />
                           ) : (
                             <XCircle className="h-4 w-4 text-red-500" />
                           )}
-                          <span className="text-base">Notificaciones por WhatsApp</span>
+                          <span className="text-base">
+                            Notificaciones por WhatsApp
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -393,7 +504,7 @@ const ViewOwnerModal = ({ open, onOpenChange, owner, onEdit }) => {
               <Edit className="h-4 w-4 mr-2" />
               Editar Propietario
             </Button>
-            
+
             <Button variant="outline" onClick={() => onOpenChange(false)}>
               <X className="h-4 w-4 mr-2" />
               Cerrar

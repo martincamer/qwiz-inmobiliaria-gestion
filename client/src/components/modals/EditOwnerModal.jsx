@@ -193,14 +193,15 @@ const EditOwnerModal = ({ open, onOpenChange, owner, onSuccess }) => {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="min-w-6xl max-h-auto h-auto overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Edit className="h-5 w-5" />
             Editar Propietario
           </DialogTitle>
           <DialogDescription>
-            Modifique la información del propietario {owner.nombre} {owner.apellido}. Los campos marcados con * son obligatorios.
+            Modifique la información del propietario {owner.nombre}{" "}
+            {owner.apellido}. Los campos marcados con * son obligatorios.
           </DialogDescription>
         </DialogHeader>
 
@@ -218,8 +219,12 @@ const EditOwnerModal = ({ open, onOpenChange, owner, onSuccess }) => {
             <TabsContent value="personal" className="space-y-4">
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg">Información Personal</CardTitle>
-                  <CardDescription>Datos básicos del propietario</CardDescription>
+                  <CardTitle className="text-lg">
+                    Información Personal
+                  </CardTitle>
+                  <CardDescription>
+                    Datos básicos del propietario
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -228,22 +233,32 @@ const EditOwnerModal = ({ open, onOpenChange, owner, onSuccess }) => {
                       <Input
                         id="nombre"
                         value={formData.nombre}
-                        onChange={(e) => handleInputChange('nombre', e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("nombre", e.target.value)
+                        }
                         placeholder="Ingrese el nombre"
-                        className={errors.nombre ? 'border-red-500' : ''}
+                        className={errors.nombre ? "border-red-500" : ""}
                       />
-                      {errors.nombre && <p className="text-sm text-red-500">{errors.nombre}</p>}
+                      {errors.nombre && (
+                        <p className="text-sm text-red-500">{errors.nombre}</p>
+                      )}
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="apellido">Apellido *</Label>
                       <Input
                         id="apellido"
                         value={formData.apellido}
-                        onChange={(e) => handleInputChange('apellido', e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("apellido", e.target.value)
+                        }
                         placeholder="Ingrese el apellido"
-                        className={errors.apellido ? 'border-red-500' : ''}
+                        className={errors.apellido ? "border-red-500" : ""}
                       />
-                      {errors.apellido && <p className="text-sm text-red-500">{errors.apellido}</p>}
+                      {errors.apellido && (
+                        <p className="text-sm text-red-500">
+                          {errors.apellido}
+                        </p>
+                      )}
                     </div>
                   </div>
 
@@ -254,18 +269,24 @@ const EditOwnerModal = ({ open, onOpenChange, owner, onSuccess }) => {
                         id="email"
                         type="email"
                         value={formData.email}
-                        onChange={(e) => handleInputChange('email', e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("email", e.target.value)
+                        }
                         placeholder="ejemplo@correo.com"
-                        className={errors.email ? 'border-red-500' : ''}
+                        className={errors.email ? "border-red-500" : ""}
                       />
-                      {errors.email && <p className="text-sm text-red-500">{errors.email}</p>}
+                      {errors.email && (
+                        <p className="text-sm text-red-500">{errors.email}</p>
+                      )}
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="telefono">Teléfono</Label>
                       <Input
                         id="telefono"
                         value={formData.telefono}
-                        onChange={(e) => handleInputChange('telefono', e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("telefono", e.target.value)
+                        }
                         placeholder="+54 11 1234-5678"
                       />
                     </div>
@@ -276,7 +297,9 @@ const EditOwnerModal = ({ open, onOpenChange, owner, onSuccess }) => {
                       <Label>Tipo de Identificación</Label>
                       <Select
                         value={formData.tipoIdentificacion}
-                        onValueChange={(value) => handleInputChange('tipoIdentificacion', value)}
+                        onValueChange={(value) =>
+                          handleInputChange("tipoIdentificacion", value)
+                        }
                       >
                         <SelectTrigger>
                           <SelectValue />
@@ -285,20 +308,35 @@ const EditOwnerModal = ({ open, onOpenChange, owner, onSuccess }) => {
                           <SelectItem value="DNI">DNI</SelectItem>
                           <SelectItem value="CUIT">CUIT</SelectItem>
                           <SelectItem value="CUIL">CUIL</SelectItem>
-                          <SelectItem value="RAZON_SOCIAL">Razón Social</SelectItem>
+                          <SelectItem value="RAZON_SOCIAL">
+                            Razón Social
+                          </SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="numeroIdentificacion">Número de Identificación *</Label>
+                      <Label htmlFor="numeroIdentificacion">
+                        Número de Identificación *
+                      </Label>
                       <Input
                         id="numeroIdentificacion"
                         value={formData.numeroIdentificacion}
-                        onChange={(e) => handleInputChange('numeroIdentificacion', e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange(
+                            "numeroIdentificacion",
+                            e.target.value
+                          )
+                        }
                         placeholder="12345678"
-                        className={errors.numeroIdentificacion ? 'border-red-500' : ''}
+                        className={
+                          errors.numeroIdentificacion ? "border-red-500" : ""
+                        }
                       />
-                      {errors.numeroIdentificacion && <p className="text-sm text-red-500">{errors.numeroIdentificacion}</p>}
+                      {errors.numeroIdentificacion && (
+                        <p className="text-sm text-red-500">
+                          {errors.numeroIdentificacion}
+                        </p>
+                      )}
                     </div>
                   </div>
                 </CardContent>
@@ -313,7 +351,9 @@ const EditOwnerModal = ({ open, onOpenChange, owner, onSuccess }) => {
                     <MapPin className="h-5 w-5" />
                     Dirección
                   </CardTitle>
-                  <CardDescription>Información de domicilio del propietario</CardDescription>
+                  <CardDescription>
+                    Información de domicilio del propietario
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -322,7 +362,13 @@ const EditOwnerModal = ({ open, onOpenChange, owner, onSuccess }) => {
                       <Input
                         id="calle"
                         value={formData.direccion.calle}
-                        onChange={(e) => handleInputChange('calle', e.target.value, 'direccion')}
+                        onChange={(e) =>
+                          handleInputChange(
+                            "calle",
+                            e.target.value,
+                            "direccion"
+                          )
+                        }
                         placeholder="Nombre de la calle"
                       />
                     </div>
@@ -331,7 +377,13 @@ const EditOwnerModal = ({ open, onOpenChange, owner, onSuccess }) => {
                       <Input
                         id="numero"
                         value={formData.direccion.numero}
-                        onChange={(e) => handleInputChange('numero', e.target.value, 'direccion')}
+                        onChange={(e) =>
+                          handleInputChange(
+                            "numero",
+                            e.target.value,
+                            "direccion"
+                          )
+                        }
                         placeholder="1234"
                       />
                     </div>
@@ -343,7 +395,9 @@ const EditOwnerModal = ({ open, onOpenChange, owner, onSuccess }) => {
                       <Input
                         id="piso"
                         value={formData.direccion.piso}
-                        onChange={(e) => handleInputChange('piso', e.target.value, 'direccion')}
+                        onChange={(e) =>
+                          handleInputChange("piso", e.target.value, "direccion")
+                        }
                         placeholder="5"
                       />
                     </div>
@@ -352,7 +406,13 @@ const EditOwnerModal = ({ open, onOpenChange, owner, onSuccess }) => {
                       <Input
                         id="departamento"
                         value={formData.direccion.departamento}
-                        onChange={(e) => handleInputChange('departamento', e.target.value, 'direccion')}
+                        onChange={(e) =>
+                          handleInputChange(
+                            "departamento",
+                            e.target.value,
+                            "direccion"
+                          )
+                        }
                         placeholder="A"
                       />
                     </div>
@@ -364,7 +424,13 @@ const EditOwnerModal = ({ open, onOpenChange, owner, onSuccess }) => {
                       <Input
                         id="ciudad"
                         value={formData.direccion.ciudad}
-                        onChange={(e) => handleInputChange('ciudad', e.target.value, 'direccion')}
+                        onChange={(e) =>
+                          handleInputChange(
+                            "ciudad",
+                            e.target.value,
+                            "direccion"
+                          )
+                        }
                         placeholder="Buenos Aires"
                       />
                     </div>
@@ -373,7 +439,13 @@ const EditOwnerModal = ({ open, onOpenChange, owner, onSuccess }) => {
                       <Input
                         id="provincia"
                         value={formData.direccion.provincia}
-                        onChange={(e) => handleInputChange('provincia', e.target.value, 'direccion')}
+                        onChange={(e) =>
+                          handleInputChange(
+                            "provincia",
+                            e.target.value,
+                            "direccion"
+                          )
+                        }
                         placeholder="Buenos Aires"
                       />
                     </div>
@@ -382,7 +454,13 @@ const EditOwnerModal = ({ open, onOpenChange, owner, onSuccess }) => {
                       <Input
                         id="codigoPostal"
                         value={formData.direccion.codigoPostal}
-                        onChange={(e) => handleInputChange('codigoPostal', e.target.value, 'direccion')}
+                        onChange={(e) =>
+                          handleInputChange(
+                            "codigoPostal",
+                            e.target.value,
+                            "direccion"
+                          )
+                        }
                         placeholder="1234"
                       />
                     </div>
@@ -399,7 +477,9 @@ const EditOwnerModal = ({ open, onOpenChange, owner, onSuccess }) => {
                     <CreditCard className="h-5 w-5" />
                     Información Bancaria
                   </CardTitle>
-                  <CardDescription>Datos bancarios para transferencias</CardDescription>
+                  <CardDescription>
+                    Datos bancarios para transferencias
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -408,7 +488,13 @@ const EditOwnerModal = ({ open, onOpenChange, owner, onSuccess }) => {
                       <Input
                         id="banco"
                         value={formData.informacionBancaria.banco}
-                        onChange={(e) => handleInputChange('banco', e.target.value, 'informacionBancaria')}
+                        onChange={(e) =>
+                          handleInputChange(
+                            "banco",
+                            e.target.value,
+                            "informacionBancaria"
+                          )
+                        }
                         placeholder="Banco Nación"
                       />
                     </div>
@@ -416,14 +502,24 @@ const EditOwnerModal = ({ open, onOpenChange, owner, onSuccess }) => {
                       <Label>Tipo de Cuenta</Label>
                       <Select
                         value={formData.informacionBancaria.tipoCuenta}
-                        onValueChange={(value) => handleInputChange('tipoCuenta', value, 'informacionBancaria')}
+                        onValueChange={(value) =>
+                          handleInputChange(
+                            "tipoCuenta",
+                            value,
+                            "informacionBancaria"
+                          )
+                        }
                       >
                         <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="CAJA_AHORRO">Caja de Ahorro</SelectItem>
-                          <SelectItem value="CORRIENTE">Cuenta Corriente</SelectItem>
+                          <SelectItem value="CAJA_AHORRO">
+                            Caja de Ahorro
+                          </SelectItem>
+                          <SelectItem value="CORRIENTE">
+                            Cuenta Corriente
+                          </SelectItem>
                           <SelectItem value="AHORRO">Ahorro</SelectItem>
                         </SelectContent>
                       </Select>
@@ -436,7 +532,13 @@ const EditOwnerModal = ({ open, onOpenChange, owner, onSuccess }) => {
                       <Input
                         id="numeroCuenta"
                         value={formData.informacionBancaria.numeroCuenta}
-                        onChange={(e) => handleInputChange('numeroCuenta', e.target.value, 'informacionBancaria')}
+                        onChange={(e) =>
+                          handleInputChange(
+                            "numeroCuenta",
+                            e.target.value,
+                            "informacionBancaria"
+                          )
+                        }
                         placeholder="1234567890"
                       />
                     </div>
@@ -445,7 +547,13 @@ const EditOwnerModal = ({ open, onOpenChange, owner, onSuccess }) => {
                       <Input
                         id="alias"
                         value={formData.informacionBancaria.alias}
-                        onChange={(e) => handleInputChange('alias', e.target.value, 'informacionBancaria')}
+                        onChange={(e) =>
+                          handleInputChange(
+                            "alias",
+                            e.target.value,
+                            "informacionBancaria"
+                          )
+                        }
                         placeholder="PROPIETARIO.CASA.AZUL"
                       />
                     </div>
@@ -456,13 +564,23 @@ const EditOwnerModal = ({ open, onOpenChange, owner, onSuccess }) => {
                     <Input
                       id="cbu"
                       value={formData.informacionBancaria.cbu}
-                      onChange={(e) => handleInputChange('cbu', e.target.value, 'informacionBancaria')}
+                      onChange={(e) =>
+                        handleInputChange(
+                          "cbu",
+                          e.target.value,
+                          "informacionBancaria"
+                        )
+                      }
                       placeholder="1234567890123456789012"
                       maxLength={22}
-                      className={errors.cbu ? 'border-red-500' : ''}
+                      className={errors.cbu ? "border-red-500" : ""}
                     />
-                    {errors.cbu && <p className="text-sm text-red-500">{errors.cbu}</p>}
-                    <p className="text-sm text-muted-foreground">El CBU debe tener exactamente 22 dígitos</p>
+                    {errors.cbu && (
+                      <p className="text-sm text-red-500">{errors.cbu}</p>
+                    )}
+                    <p className="text-sm text-muted-foreground">
+                      El CBU debe tener exactamente 22 dígitos
+                    </p>
                   </div>
                 </CardContent>
               </Card>
@@ -476,7 +594,9 @@ const EditOwnerModal = ({ open, onOpenChange, owner, onSuccess }) => {
                     <FileText className="h-5 w-5" />
                     Información Fiscal
                   </CardTitle>
-                  <CardDescription>Datos fiscales y tributarios</CardDescription>
+                  <CardDescription>
+                    Datos fiscales y tributarios
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -484,17 +604,31 @@ const EditOwnerModal = ({ open, onOpenChange, owner, onSuccess }) => {
                       <Label>Condición IVA</Label>
                       <Select
                         value={formData.informacionFiscal.condicionIva}
-                        onValueChange={(value) => handleInputChange('condicionIva', value, 'informacionFiscal')}
+                        onValueChange={(value) =>
+                          handleInputChange(
+                            "condicionIva",
+                            value,
+                            "informacionFiscal"
+                          )
+                        }
                       >
                         <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="CONSUMIDOR_FINAL">Consumidor Final</SelectItem>
-                          <SelectItem value="RESPONSABLE_INSCRIPTO">Responsable Inscripto</SelectItem>
-                          <SelectItem value="MONOTRIBUTISTA">Monotributista</SelectItem>
+                          <SelectItem value="CONSUMIDOR_FINAL">
+                            Consumidor Final
+                          </SelectItem>
+                          <SelectItem value="RESPONSABLE_INSCRIPTO">
+                            Responsable Inscripto
+                          </SelectItem>
+                          <SelectItem value="MONOTRIBUTISTA">
+                            Monotributista
+                          </SelectItem>
                           <SelectItem value="EXENTO">Exento</SelectItem>
-                          <SelectItem value="RESPONSABLE_NO_INSCRIPTO">Responsable No Inscripto</SelectItem>
+                          <SelectItem value="RESPONSABLE_NO_INSCRIPTO">
+                            Responsable No Inscripto
+                          </SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -503,7 +637,13 @@ const EditOwnerModal = ({ open, onOpenChange, owner, onSuccess }) => {
                       <Input
                         id="ingresosBrutos"
                         value={formData.informacionFiscal.ingresosBrutos}
-                        onChange={(e) => handleInputChange('ingresosBrutos', e.target.value, 'informacionFiscal')}
+                        onChange={(e) =>
+                          handleInputChange(
+                            "ingresosBrutos",
+                            e.target.value,
+                            "informacionFiscal"
+                          )
+                        }
                         placeholder="123456789"
                       />
                     </div>
@@ -520,7 +660,9 @@ const EditOwnerModal = ({ open, onOpenChange, owner, onSuccess }) => {
                     <Settings className="h-5 w-5" />
                     Configuración
                   </CardTitle>
-                  <CardDescription>Preferencias y notas adicionales</CardDescription>
+                  <CardDescription>
+                    Preferencias y notas adicionales
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
@@ -528,7 +670,9 @@ const EditOwnerModal = ({ open, onOpenChange, owner, onSuccess }) => {
                     <Textarea
                       id="notas"
                       value={formData.notas}
-                      onChange={(e) => handleInputChange('notas', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("notas", e.target.value)
+                      }
                       placeholder="Notas adicionales sobre el propietario..."
                       rows={4}
                     />
@@ -537,37 +681,59 @@ const EditOwnerModal = ({ open, onOpenChange, owner, onSuccess }) => {
                   <Separator />
 
                   <div className="space-y-4">
-                    <Label className="text-base font-medium">Notificaciones</Label>
+                    <Label className="text-base font-medium">
+                      Notificaciones
+                    </Label>
                     <div className="space-y-3">
                       <div className="flex items-center space-x-2">
                         <Checkbox
                           id="email-notifications"
                           checked={formData.configuracionNotificaciones.email}
-                          onCheckedChange={(checked) => 
-                            handleInputChange('email', checked, 'configuracionNotificaciones')
+                          onCheckedChange={(checked) =>
+                            handleInputChange(
+                              "email",
+                              checked,
+                              "configuracionNotificaciones"
+                            )
                           }
                         />
-                        <Label htmlFor="email-notifications">Notificaciones por Email</Label>
+                        <Label htmlFor="email-notifications">
+                          Notificaciones por Email
+                        </Label>
                       </div>
                       <div className="flex items-center space-x-2">
                         <Checkbox
                           id="sms-notifications"
                           checked={formData.configuracionNotificaciones.sms}
-                          onCheckedChange={(checked) => 
-                            handleInputChange('sms', checked, 'configuracionNotificaciones')
+                          onCheckedChange={(checked) =>
+                            handleInputChange(
+                              "sms",
+                              checked,
+                              "configuracionNotificaciones"
+                            )
                           }
                         />
-                        <Label htmlFor="sms-notifications">Notificaciones por SMS</Label>
+                        <Label htmlFor="sms-notifications">
+                          Notificaciones por SMS
+                        </Label>
                       </div>
                       <div className="flex items-center space-x-2">
                         <Checkbox
                           id="whatsapp-notifications"
-                          checked={formData.configuracionNotificaciones.whatsapp}
-                          onCheckedChange={(checked) => 
-                            handleInputChange('whatsapp', checked, 'configuracionNotificaciones')
+                          checked={
+                            formData.configuracionNotificaciones.whatsapp
+                          }
+                          onCheckedChange={(checked) =>
+                            handleInputChange(
+                              "whatsapp",
+                              checked,
+                              "configuracionNotificaciones"
+                            )
                           }
                         />
-                        <Label htmlFor="whatsapp-notifications">Notificaciones por WhatsApp</Label>
+                        <Label htmlFor="whatsapp-notifications">
+                          Notificaciones por WhatsApp
+                        </Label>
                       </div>
                     </div>
                   </div>
@@ -584,7 +750,7 @@ const EditOwnerModal = ({ open, onOpenChange, owner, onSuccess }) => {
             </Button>
             <Button type="submit" disabled={isLoading}>
               <Save className="h-4 w-4 mr-2" />
-              {isLoading ? 'Actualizando...' : 'Actualizar Propietario'}
+              {isLoading ? "Actualizando..." : "Actualizar Propietario"}
             </Button>
           </div>
         </form>

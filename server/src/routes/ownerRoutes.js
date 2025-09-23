@@ -9,7 +9,10 @@ import {
   obtenerEstadisticasPropietario,
   cambiarPasswordPropietario,
 } from "../controllers/ownerController.js";
-import { validarPropietario, validarCambioPassword } from "../middleware/validation.js";
+import {
+  validarPropietario,
+  validarCambioPassword,
+} from "../middleware/validation.js";
 import { protect, authorize } from "../middleware/auth.js";
 
 const router = express.Router();
@@ -19,22 +22,13 @@ router.use(protect);
 
 // @route   POST /api/propietarios
 // @desc    Crear un nuevo propietario
-// @access  Private (Admin, Agente)
-router.post(
-  "/",
-  authorize("admin", "agente"),
-  validarPropietario,
-  crearPropietario
-);
+// @access  Private (Cualquier usuario autenticado)
+router.post("/", validarPropietario, crearPropietario);
 
 // @route   GET /api/propietarios
 // @desc    Obtener todos los propietarios con filtros y paginación
-// @access  Private (Admin, Agente)
-router.get(
-  "/",
-  authorize("admin", "agente"),
-  obtenerPropietarios
-);
+// @access  Private (Cualquier usuario autenticado)
+router.get("/", obtenerPropietarios);
 
 // @route   GET /api/propietarios/:id
 // @desc    Obtener un propietario por ID
@@ -47,22 +41,13 @@ router.get(
 
 // @route   PUT /api/propietarios/:id
 // @desc    Actualizar un propietario
-// @access  Private (Admin, Agente, Propietario propio)
-router.put(
-  "/:id",
-  authorize("admin", "agente", "propietario"),
-  validarPropietario,
-  actualizarPropietario
-);
+// @access  Private (Cualquier usuario autenticado)
+router.put("/:id", validarPropietario, actualizarPropietario);
 
 // @route   DELETE /api/propietarios/:id
 // @desc    Eliminar un propietario
 // @access  Private (Admin)
-router.delete(
-  "/:id",
-  authorize("admin"),
-  eliminarPropietario
-);
+router.delete("/:id", authorize("admin"), eliminarPropietario);
 
 // @route   GET /api/propietarios/:id/inquilinos
 // @desc    Obtener inquilinos de un propietario

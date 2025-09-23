@@ -4,6 +4,7 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
+import { Toaster } from "sonner";
 
 // Context
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
@@ -116,6 +117,12 @@ function App() {
         <Router>
           <div className="App">
             <AppRoutes />
+            <Toaster
+              position="top-right"
+              richColors
+              closeButton
+              duration={4000}
+            />
           </div>
         </Router>
       </OwnersProvider>

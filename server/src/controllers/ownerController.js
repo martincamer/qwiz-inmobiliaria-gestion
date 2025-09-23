@@ -7,15 +7,21 @@ import { validationResult } from "express-validator";
 // @access  Private
 export const crearPropietario = async (req, res) => {
   try {
+    console.log("\n🏠 === CREAR PROPIETARIO ===");
+    console.log("📦 Datos recibidos:", JSON.stringify(req.body, null, 2));
+    
     // Verificar errores de validación
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      console.log("❌ Errores de validación:", JSON.stringify(errors.array(), null, 2));
       return res.status(400).json({
         success: false,
         message: "Errores de validación",
         errors: errors.array(),
       });
     }
+    
+    console.log("✅ Validación pasada correctamente");
 
     const {
       nombre,
@@ -33,24 +39,33 @@ export const crearPropietario = async (req, res) => {
     } = req.body;
 
     // Verificar si el email ya existe
+    console.log("🔍 Verificando email existente:", email);
     const propietarioExistente = await Owner.findOne({ email });
     if (propietarioExistente) {
+      console.log("❌ Email ya existe:", email);
       return res.status(400).json({
         success: false,
         message: "Ya existe un propietario con este email",
       });
     }
+    console.log("✅ Email disponible");
 
     // Verificar si el número de identificación ya existe
-    const identificacionExistente = await Owner.findOne({ numeroIdentificacion });
+    console.log("🔍 Verificando número de identificación:", numeroIdentificacion);
+    const identificacionExistente = await Owner.findOne({
+      numeroIdentificacion,
+    });
     if (identificacionExistente) {
+      console.log("❌ Número de identificación ya existe:", numeroIdentificacion);
       return res.status(400).json({
         success: false,
         message: "Ya existe un propietario con este número de identificación",
       });
     }
+    console.log("✅ Número de identificación disponible");
 
     // Crear el nuevo propietario
+    console.log("🏗️ Creando nuevo propietario...");
     const nuevoPropietario = new Owner({
       nombre,
       apellido,
@@ -66,7 +81,9 @@ export const crearPropietario = async (req, res) => {
       configuracionNotificaciones,
     });
 
-    await nuevoPropietario.save();
+    console.log("💾 Guardando propietario en la base de datos...");
+    const propietarioGuardado = await nuevoPropietario.save();
+    console.log("✅ Propietario guardado exitosamente:", propietarioGuardado._id);
 
     res.status(201).json({
       success: true,
@@ -74,11 +91,40 @@ export const crearPropietario = async (req, res) => {
       data: nuevoPropietario.obtenerPerfilPublico(),
     });
   } catch (error) {
-    console.error("Error al crear propietario:", error);
+    console.error("\n💥 === ERROR AL CREAR PROPIETARIO ===");
+    console.error("🔴 Tipo de error:", error.name);
+    console.error("🔴 Mensaje:", error.message);
+    console.error("🔴 Stack:", error.stack);
+    
+    // Si es un error de validación de Mongoose
+    if (error.name === 'ValidationError') {
+      console.error("🔴 Errores de validación de Mongoose:", JSON.stringify(error.errors, null, 2));
+      return res.status(400).json({
+        success: false,
+        message: "Error de validación",
+        errors: Object.values(error.errors).map(err => ({
+          field: err.path,
+          message: err.message,
+          value: err.value
+        }))
+      });
+    }
+    
+    // Si es un error de duplicado (código 11000)
+    if (error.code === 11000) {
+      console.error("🔴 Error de duplicado:", JSON.stringify(error.keyValue, null, 2));
+      return res.status(400).json({
+        success: false,
+        message: "Ya existe un registro con estos datos",
+        duplicateField: Object.keys(error.keyValue)[0]
+      });
+    }
+    
+    console.error("🔴 Error completo:", JSON.stringify(error, null, 2));
     res.status(500).json({
       success: false,
       message: "Error interno del servidor",
-      error: error.message,
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 };
@@ -88,59 +134,22 @@ export const crearPropietario = async (req, res) => {
 // @access  Private
 export const obtenerPropietarios = async (req, res) => {
   try {
-    const {
-      page = 1,
-      limit = 10,
-      search = "",
-      activo,
-      tipoIdentificacion,
-      sortBy = "fechaRegistro",
-      sortOrder = "desc",
-    } = req.query;
-
-    // Construir filtros
-    const filtros = {};
-    
-    if (search) {
-      filtros.$or = [
-        { nombre: { $regex: search, $options: "i" } },
-        { apellido: { $regex: search, $options: "i" } },
-        { email: { $regex: search, $options: "i" } },
-        { numeroIdentificacion: { $regex: search, $options: "i" } },
-      ];
-    }
-
-    if (activo !== undefined) {
-      filtros.activo = activo === "true";
-    }
-
-    if (tipoIdentificacion) {
-      filtros.tipoIdentificacion = tipoIdentificacion;
-    }
-
-    // Configurar paginación
-    const skip = (parseInt(page) - 1) * parseInt(limit);
-    const sortOptions = {};
-    sortOptions[sortBy] = sortOrder === "desc" ? -1 : 1;
-
-    // Ejecutar consulta
-    const propietarios = await Owner.find(filtros)
+    // Ejecutar consulta simple - obtener todos los propietarios
+    const propietarios = await Owner.find()
       .select("-password")
       .populate("inquilinos", "name email phone status")
-      .sort(sortOptions)
-      .skip(skip)
-      .limit(parseInt(limit));
+      .sort({ fechaRegistro: -1 });
 
-    const total = await Owner.countDocuments(filtros);
+    const total = propietarios.length;
 
     res.status(200).json({
       success: true,
       data: propietarios,
       pagination: {
-        currentPage: parseInt(page),
-        totalPages: Math.ceil(total / parseInt(limit)),
+        currentPage: 1,
+        totalPages: 1,
         totalItems: total,
-        itemsPerPage: parseInt(limit),
+        itemsPerPage: total,
       },
     });
   } catch (error) {
@@ -193,7 +202,7 @@ export const actualizarPropietario = async (req, res) => {
   try {
     const { id } = req.params;
     const errors = validationResult(req);
-    
+
     if (!errors.isEmpty()) {
       return res.status(400).json({
         success: false,
@@ -222,9 +231,12 @@ export const actualizarPropietario = async (req, res) => {
     }
 
     // Verificar número de identificación único (si se está cambiando)
-    if (req.body.numeroIdentificacion && req.body.numeroIdentificacion !== propietario.numeroIdentificacion) {
-      const identificacionExistente = await Owner.findOne({ 
-        numeroIdentificacion: req.body.numeroIdentificacion 
+    if (
+      req.body.numeroIdentificacion &&
+      req.body.numeroIdentificacion !== propietario.numeroIdentificacion
+    ) {
+      const identificacionExistente = await Owner.findOne({
+        numeroIdentificacion: req.body.numeroIdentificacion,
       });
       if (identificacionExistente) {
         return res.status(400).json({
@@ -236,12 +248,21 @@ export const actualizarPropietario = async (req, res) => {
 
     // Actualizar campos
     const camposPermitidos = [
-      "nombre", "apellido", "email", "telefono", "numeroIdentificacion",
-      "tipoIdentificacion", "direccion", "informacionBancaria", 
-      "informacionFiscal", "notas", "configuracionNotificaciones", "activo"
+      "nombre",
+      "apellido",
+      "email",
+      "telefono",
+      "numeroIdentificacion",
+      "tipoIdentificacion",
+      "direccion",
+      "informacionBancaria",
+      "informacionFiscal",
+      "notas",
+      "configuracionNotificaciones",
+      "activo",
     ];
 
-    camposPermitidos.forEach(campo => {
+    camposPermitidos.forEach((campo) => {
       if (req.body[campo] !== undefined) {
         propietario[campo] = req.body[campo];
       }
@@ -289,7 +310,8 @@ export const eliminarPropietario = async (req, res) => {
     if (inquilinosActivos > 0) {
       return res.status(400).json({
         success: false,
-        message: "No se puede eliminar el propietario porque tiene inquilinos activos",
+        message:
+          "No se puede eliminar el propietario porque tiene inquilinos activos",
       });
     }
 
@@ -458,7 +480,9 @@ export const cambiarPasswordPropietario = async (req, res) => {
 
     // Verificar contraseña actual si existe
     if (propietario.password && passwordActual) {
-      const passwordCorrecta = await propietario.compararPassword(passwordActual);
+      const passwordCorrecta = await propietario.compararPassword(
+        passwordActual
+      );
       if (!passwordCorrecta) {
         return res.status(400).json({
           success: false,

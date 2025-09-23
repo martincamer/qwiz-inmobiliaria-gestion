@@ -86,12 +86,13 @@ const ownersReducer = (state, action) => {
     case OWNERS_ACTIONS.UPDATE_OWNER:
       return {
         ...state,
-        owners: state.owners.map(owner =>
+        owners: state.owners.map((owner) =>
           owner._id === action.payload._id ? action.payload : owner
         ),
-        currentOwner: state.currentOwner?._id === action.payload._id 
-          ? action.payload 
-          : state.currentOwner,
+        currentOwner:
+          state.currentOwner?._id === action.payload._id
+            ? action.payload
+            : state.currentOwner,
         isLoading: false,
         error: null,
       };
@@ -99,10 +100,11 @@ const ownersReducer = (state, action) => {
     case OWNERS_ACTIONS.DELETE_OWNER:
       return {
         ...state,
-        owners: state.owners.filter(owner => owner._id !== action.payload),
-        currentOwner: state.currentOwner?._id === action.payload 
-          ? null 
-          : state.currentOwner,
+        owners: state.owners.filter((owner) => owner._id !== action.payload),
+        currentOwner:
+          state.currentOwner?._id === action.payload
+            ? null
+            : state.currentOwner,
         isLoading: false,
         error: null,
       };
@@ -147,31 +149,25 @@ export const OwnersProvider = ({ children }) => {
   const [state, dispatch] = useReducer(ownersReducer, initialState);
 
   // Función para obtener todos los propietarios
-  const getOwners = async (customFilters = {}) => {
+  const getOwners = async () => {
     try {
       dispatch({ type: OWNERS_ACTIONS.SET_LOADING, payload: true });
 
-      const filters = { ...state.filters, ...customFilters };
-      const params = new URLSearchParams();
+      const response = await clientAxios.get("/propietarios");
 
-      // Agregar filtros a los parámetros
-      Object.keys(filters).forEach(key => {
-        if (filters[key] !== "" && filters[key] !== null && filters[key] !== undefined) {
-          params.append(key, filters[key]);
-        }
+      dispatch({
+        type: OWNERS_ACTIONS.SET_OWNERS,
+        payload: response.data.data,
       });
-
-      params.append("page", state.pagination.currentPage);
-      params.append("limit", state.pagination.itemsPerPage);
-
-      const response = await clientAxios.get(`/propietarios?${params.toString()}`);
-      
-      dispatch({ type: OWNERS_ACTIONS.SET_OWNERS, payload: response.data.data });
-      dispatch({ type: OWNERS_ACTIONS.SET_PAGINATION, payload: response.data.pagination });
+      dispatch({
+        type: OWNERS_ACTIONS.SET_PAGINATION,
+        payload: response.data.pagination,
+      });
 
       return { success: true, data: response.data };
     } catch (error) {
-      const errorMessage = error.response?.data?.message || "Error al obtener propietarios";
+      const errorMessage =
+        error.response?.data?.message || "Error al obtener propietarios";
       dispatch({ type: OWNERS_ACTIONS.SET_ERROR, payload: errorMessage });
       return { success: false, error: errorMessage };
     }
@@ -183,12 +179,16 @@ export const OwnersProvider = ({ children }) => {
       dispatch({ type: OWNERS_ACTIONS.SET_LOADING, payload: true });
 
       const response = await clientAxios.get(`/propietarios/${id}`);
-      
-      dispatch({ type: OWNERS_ACTIONS.SET_CURRENT_OWNER, payload: response.data.data });
+
+      dispatch({
+        type: OWNERS_ACTIONS.SET_CURRENT_OWNER,
+        payload: response.data.data,
+      });
 
       return { success: true, data: response.data.data };
     } catch (error) {
-      const errorMessage = error.response?.data?.message || "Error al obtener propietario";
+      const errorMessage =
+        error.response?.data?.message || "Error al obtener propietario";
       dispatch({ type: OWNERS_ACTIONS.SET_ERROR, payload: errorMessage });
       return { success: false, error: errorMessage };
     }
@@ -199,15 +199,55 @@ export const OwnersProvider = ({ children }) => {
     try {
       dispatch({ type: OWNERS_ACTIONS.SET_LOADING, payload: true });
 
+      console.log("🚀 Enviando datos al servidor:", ownerData);
       const response = await clientAxios.post("/propietarios", ownerData);
-      
+
       dispatch({ type: OWNERS_ACTIONS.ADD_OWNER, payload: response.data.data });
 
       return { success: true, data: response.data.data };
     } catch (error) {
-      const errorMessage = error.response?.data?.message || "Error al crear propietario";
+      console.error("❌ Error en createOwner:", error);
+      
+      let errorMessage = "Error al crear propietario";
+      let errorDetails = null;
+
+      // Extraer información detallada del error
+      if (error.response?.data) {
+        const serverError = error.response.data;
+        
+        // Si hay un mensaje específico del servidor
+        if (serverError.message) {
+          errorMessage = serverError.message;
+        }
+        
+        // Si hay errores de validación específicos
+        if (serverError.errors && Array.isArray(serverError.errors)) {
+          errorDetails = serverError.errors;
+          errorMessage = "Errores de validación encontrados";
+        }
+        
+        // Si hay información sobre campo duplicado
+        if (serverError.duplicateField) {
+          if (serverError.duplicateField === 'email') {
+            errorMessage = "Ya existe un propietario con este email";
+          } else if (serverError.duplicateField === 'numeroIdentificacion') {
+            errorMessage = "Ya existe un propietario con este número de identificación";
+          }
+        }
+      } else if (error.request) {
+        errorMessage = "Error de conexión con el servidor";
+      } else {
+        errorMessage = error.message || "Error inesperado";
+      }
+
       dispatch({ type: OWNERS_ACTIONS.SET_ERROR, payload: errorMessage });
-      return { success: false, error: errorMessage };
+      
+      return { 
+        success: false, 
+        error: errorMessage,
+        details: errorDetails,
+        statusCode: error.response?.status
+      };
     }
   };
 
@@ -217,12 +257,16 @@ export const OwnersProvider = ({ children }) => {
       dispatch({ type: OWNERS_ACTIONS.SET_LOADING, payload: true });
 
       const response = await clientAxios.put(`/propietarios/${id}`, ownerData);
-      
-      dispatch({ type: OWNERS_ACTIONS.UPDATE_OWNER, payload: response.data.data });
+
+      dispatch({
+        type: OWNERS_ACTIONS.UPDATE_OWNER,
+        payload: response.data.data,
+      });
 
       return { success: true, data: response.data.data };
     } catch (error) {
-      const errorMessage = error.response?.data?.message || "Error al actualizar propietario";
+      const errorMessage =
+        error.response?.data?.message || "Error al actualizar propietario";
       dispatch({ type: OWNERS_ACTIONS.SET_ERROR, payload: errorMessage });
       return { success: false, error: errorMessage };
     }
@@ -234,12 +278,13 @@ export const OwnersProvider = ({ children }) => {
       dispatch({ type: OWNERS_ACTIONS.SET_LOADING, payload: true });
 
       await clientAxios.delete(`/propietarios/${id}`);
-      
+
       dispatch({ type: OWNERS_ACTIONS.DELETE_OWNER, payload: id });
 
       return { success: true };
     } catch (error) {
-      const errorMessage = error.response?.data?.message || "Error al eliminar propietario";
+      const errorMessage =
+        error.response?.data?.message || "Error al eliminar propietario";
       dispatch({ type: OWNERS_ACTIONS.SET_ERROR, payload: errorMessage });
       return { success: false, error: errorMessage };
     }
@@ -251,19 +296,26 @@ export const OwnersProvider = ({ children }) => {
       dispatch({ type: OWNERS_ACTIONS.SET_LOADING, payload: true });
 
       const params = new URLSearchParams();
-      Object.keys(filters).forEach(key => {
-        if (filters[key] !== "" && filters[key] !== null && filters[key] !== undefined) {
+      Object.keys(filters).forEach((key) => {
+        if (
+          filters[key] !== "" &&
+          filters[key] !== null &&
+          filters[key] !== undefined
+        ) {
           params.append(key, filters[key]);
         }
       });
 
-      const response = await clientAxios.get(`/propietarios/${id}/inquilinos?${params.toString()}`);
-      
+      const response = await clientAxios.get(
+        `/propietarios/${id}/inquilinos?${params.toString()}`
+      );
+
       dispatch({ type: OWNERS_ACTIONS.SET_LOADING, payload: false });
 
       return { success: true, data: response.data.data };
     } catch (error) {
-      const errorMessage = error.response?.data?.message || "Error al obtener inquilinos";
+      const errorMessage =
+        error.response?.data?.message || "Error al obtener inquilinos";
       dispatch({ type: OWNERS_ACTIONS.SET_ERROR, payload: errorMessage });
       return { success: false, error: errorMessage };
     }
@@ -274,13 +326,16 @@ export const OwnersProvider = ({ children }) => {
     try {
       dispatch({ type: OWNERS_ACTIONS.SET_LOADING, payload: true });
 
-      const response = await clientAxios.get(`/propietarios/${id}/estadisticas`);
-      
+      const response = await clientAxios.get(
+        `/propietarios/${id}/estadisticas`
+      );
+
       dispatch({ type: OWNERS_ACTIONS.SET_LOADING, payload: false });
 
       return { success: true, data: response.data.data };
     } catch (error) {
-      const errorMessage = error.response?.data?.message || "Error al obtener estadísticas";
+      const errorMessage =
+        error.response?.data?.message || "Error al obtener estadísticas";
       dispatch({ type: OWNERS_ACTIONS.SET_ERROR, payload: errorMessage });
       return { success: false, error: errorMessage };
     }
@@ -291,13 +346,17 @@ export const OwnersProvider = ({ children }) => {
     try {
       dispatch({ type: OWNERS_ACTIONS.SET_LOADING, payload: true });
 
-      const response = await clientAxios.put(`/propietarios/${id}/cambiar-password`, passwordData);
-      
+      const response = await clientAxios.put(
+        `/propietarios/${id}/cambiar-password`,
+        passwordData
+      );
+
       dispatch({ type: OWNERS_ACTIONS.SET_LOADING, payload: false });
 
       return { success: true, data: response.data };
     } catch (error) {
-      const errorMessage = error.response?.data?.message || "Error al cambiar contraseña";
+      const errorMessage =
+        error.response?.data?.message || "Error al cambiar contraseña";
       dispatch({ type: OWNERS_ACTIONS.SET_ERROR, payload: errorMessage });
       return { success: false, error: errorMessage };
     }
@@ -326,7 +385,7 @@ export const OwnersProvider = ({ children }) => {
   // Cargar propietarios al montar el componente
   useEffect(() => {
     getOwners();
-  }, [state.pagination.currentPage, state.filters]);
+  }, []);
 
   // Valor del contexto
   const value = {
@@ -354,9 +413,7 @@ export const OwnersProvider = ({ children }) => {
   };
 
   return (
-    <OwnersContext.Provider value={value}>
-      {children}
-    </OwnersContext.Provider>
+    <OwnersContext.Provider value={value}>{children}</OwnersContext.Provider>
   );
 };
 

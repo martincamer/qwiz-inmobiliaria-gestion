@@ -154,7 +154,7 @@ export const AuthProvider = ({ children }) => {
 
       const response = await clientAxios.post("/auth/login", {
         email: loginData.email,
-        password: loginData.password,
+        contraseña: loginData.password,
       });
 
       const { user, token } = response.data.data;

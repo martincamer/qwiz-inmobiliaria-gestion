@@ -119,10 +119,10 @@ const Register = () => {
   const generateSlug = (companyName) => {
     return companyName
       .toLowerCase()
-      .replace(/[^a-z0-9\s-]/g, '')
-      .replace(/\s+/g, '-')
-      .replace(/-+/g, '-')
-      .trim('-');
+      .replace(/[^a-z0-9\s-]/g, "")
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-")
+      .trim("-");
   };
 
   const handleCompanyNameChange = (e) => {
@@ -205,25 +205,25 @@ const Register = () => {
 
     try {
       await register({
-        firstName: formData.firstName,
-        lastName: formData.lastName,
+        nombre: formData.firstName,
+        apellido: formData.lastName,
         email: formData.email,
-        phone: formData.phone,
-        company: formData.company,
+        telefono: formData.phone,
+        empresa: formData.company,
         slug: formData.slug,
-        companyType: formData.companyType,
-        realEstateType: formData.realEstateType,
-        agentCount: formData.agentCount,
-        licenseNumber: formData.licenseNumber,
-        userType: formData.userType,
-        password: formData.password,
-        acceptTerms: formData.acceptTerms,
-        acceptMarketing: formData.acceptMarketing,
+        tipoEmpresa: formData.companyType,
+        tipoInmobiliaria: formData.realEstateType,
+        cantidadAgentes: formData.agentCount,
+        numeroLicencia: formData.licenseNumber,
+        tipoUsuario: formData.userType,
+        contraseña: formData.password,
+        aceptaTerminos: formData.acceptTerms,
+        aceptaMarketing: formData.acceptMarketing,
         // Datos AFIP opcionales
         cuit: formData.cuit,
-        businessName: formData.businessName,
-        taxCategory: formData.taxCategory,
-        startDate: formData.startDate,
+        razonSocial: formData.businessName,
+        categoriaFiscal: formData.taxCategory,
+        fechaInicio: formData.startDate,
       });
 
       setSuccess("¡Cuenta creada exitosamente! Redirigiendo al login...");
@@ -462,7 +462,9 @@ const Register = () => {
                   <div className="space-y-2">
                     <Label htmlFor="companyType">Tipo de Inmobiliaria *</Label>
                     <Select
-                      onValueChange={(value) => handleSelectChange("companyType", value)}
+                      onValueChange={(value) =>
+                        handleSelectChange("companyType", value)
+                      }
                       disabled={isLoading}
                     >
                       <SelectTrigger>
@@ -482,7 +484,9 @@ const Register = () => {
                   <div className="space-y-2">
                     <Label htmlFor="realEstateType">Tipo de Negocio *</Label>
                     <Select
-                      onValueChange={(value) => handleSelectChange("realEstateType", value)}
+                      onValueChange={(value) =>
+                        handleSelectChange("realEstateType", value)
+                      }
                       disabled={isLoading}
                       defaultValue="residential"
                     >
@@ -535,7 +539,9 @@ const Register = () => {
                   <div className="space-y-2">
                     <Label htmlFor="userType">Tu Rol *</Label>
                     <Select
-                      onValueChange={(value) => handleSelectChange("userType", value)}
+                      onValueChange={(value) =>
+                        handleSelectChange("userType", value)
+                      }
                       disabled={isLoading}
                       defaultValue="owner"
                     >

@@ -8,11 +8,6 @@ import { Toaster } from "sonner";
 
 // Context
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
-import { OwnersProvider } from "./contexts/OwnersContext";
-import { PropertiesProvider } from "./contexts/PropertiesContext";
-import { ProspectsProvider } from "./contexts/ProspectsContext";
-import { SalesProvider } from "./contexts/SalesContext";
-import { TenantsProvider } from "./contexts/TenantsContext";
 
 // Hooks
 import useDocumentTitle from "./hooks/useDocumentTitle";
@@ -26,11 +21,6 @@ import Home from "./pages/public/Home";
 import Login from "./pages/public/Login";
 import Register from "./pages/public/Register";
 import Dashboard from "./pages/private/Dashboard";
-import Owners from "./pages/private/Owners";
-import Properties from "./pages/private/Properties";
-import Prospects from "./pages/private/Prospects";
-import Sales from "./pages/private/Sales";
-import Tenants from "./pages/private/Tenants";
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -108,11 +98,6 @@ const AppRoutes = () => {
         }
       >
         <Route index element={<Dashboard />} />
-        <Route path="propietarios" element={<Owners />} />
-        <Route path="propiedades" element={<Properties />} />
-        <Route path="prospectos" element={<Prospects />} />
-        <Route path="ventas" element={<Sales />} />
-        <Route path="inquilinos" element={<Tenants />} />
       </Route>
 
       {/* Catch all route */}
@@ -125,27 +110,17 @@ const AppRoutes = () => {
 function App() {
   return (
     <AuthProvider>
-      <OwnersProvider>
-        <PropertiesProvider>
-          <ProspectsProvider>
-            <SalesProvider>
-              <TenantsProvider>
-                <Router>
-                  <div className="App">
-                    <AppRoutes />
-                    <Toaster
-                      position="top-right"
-                      richColors
-                      closeButton
-                      duration={4000}
-                    />
-                  </div>
-                </Router>
-              </TenantsProvider>
-            </SalesProvider>
-          </ProspectsProvider>
-        </PropertiesProvider>
-      </OwnersProvider>
+      <Router>
+        <div className="App">
+          <AppRoutes />
+          <Toaster
+            position="top-right"
+            richColors
+            closeButton
+            duration={4000}
+          />
+        </div>
+      </Router>
     </AuthProvider>
   );
 }

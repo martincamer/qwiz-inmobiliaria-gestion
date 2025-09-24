@@ -11,6 +11,7 @@ import {
   UserCheck,
   ShoppingCart,
   UserPlus,
+  CreditCard,
 } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -25,11 +26,6 @@ const PrivateLayout = () => {
 
   const navigation = [
     { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-    { name: "Propietarios", href: "/dashboard/propietarios", icon: Users },
-    { name: "Propiedades", href: "/dashboard/propiedades", icon: Home },
-    { name: "Inquilinos", href: "/dashboard/inquilinos", icon: UserPlus },
-    { name: "Prospectos", href: "/dashboard/prospectos", icon: UserCheck },
-    { name: "Ventas", href: "/dashboard/ventas", icon: ShoppingCart },
   ];
 
   const handleLogout = () => {

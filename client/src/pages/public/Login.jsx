@@ -66,7 +66,7 @@ const Login = () => {
     try {
       await login({
         email: formData.email,
-        password: formData.password,
+        contraseña: formData.password,
         rememberMe: formData.rememberMe,
       });
 

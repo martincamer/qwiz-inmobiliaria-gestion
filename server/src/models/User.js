@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from "uuid";
 
 const userSchema = new mongoose.Schema(
   {
-    name: {
+    nombre: {
       type: String,
       required: [true, "El nombre es requerido"],
       trim: true,
@@ -21,7 +21,7 @@ const userSchema = new mongoose.Schema(
         "Por favor ingresa un email válido",
       ],
     },
-    password: {
+    contraseña: {
       type: String,
       required: [true, "La contraseña es requerida"],
       minlength: [6, "La contraseña debe tener al menos 6 caracteres"],
@@ -29,56 +29,52 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ["admin", "user", "accountant", "agente", "propietario"],
-      default: "user",
+      enum: ["admin", "usuario", "contador", "agente", "propietario"],
+      default: "usuario",
     },
-    userType: {
+    rol: {
       type: String,
-      enum: [
-        "owner", // Propietario de la inmobiliaria
-        "manager", // Gerente
-        "agent", // Agente inmobiliario
-        "assistant", // Asistente
-        "accountant", // Contador
-        "collaborator" // Colaborador general
-      ],
-      default: "owner",
+      enum: ["admin", "usuario", "contador", "agente", "propietario"],
+      default: "usuario",
     },
     isActive: {
       type: Boolean,
       default: true,
     },
-    lastLogin: {
+    estaActivo: {
+      type: Boolean,
+      default: true,
+    },
+    lastAccess: {
       type: Date,
     },
-    resetPasswordToken: String,
-    resetPasswordExpire: Date,
-    emailVerified: {
+    ultimoAcceso: {
+      type: Date,
+    },
+    tokenRestablecerContraseña: String,
+    expiraRestablecerContraseña: Date,
+    emailVerificado: {
       type: Boolean,
       default: false,
     },
-    emailVerificationToken: String,
-    profile: {
-      phone: {
+    tokenVerificacionEmail: String,
+    perfil: {
+      telefono: {
         type: String,
         trim: true,
       },
-      address: {
-        type: String,
-        trim: true,
-      },
-      position: {
+      direccion: {
         type: String,
         trim: true,
       },
     },
-    company: {
+    empresa: {
       id: {
         type: String,
         default: () => uuidv4(),
         unique: true,
       },
-      name: {
+      nombre: {
         type: String,
         required: [true, "El nombre de la inmobiliaria es requerido"],
         trim: true,
@@ -98,68 +94,68 @@ const userSchema = new mongoose.Schema(
         ],
         maxlength: [50, "El slug no puede exceder 50 caracteres"],
       },
-      type: {
+      tipo: {
         type: String,
         enum: [
-          "individual", 
-          "small", 
-          "medium", 
-          "large", 
-          "enterprise",
-          "franchise"
+          "individual",
+          "pequeña",
+          "mediana",
+          "grande",
+          "empresa",
+          "franquicia",
         ],
         required: [true, "El tipo de inmobiliaria es requerido"],
       },
-      realEstateType: {
+      tipoInmobiliaria: {
         type: String,
         enum: [
-          "residential", // Residencial
-          "commercial", // Comercial
+          "residencial", // Residencial
+          "comercial", // Comercial
           "industrial", // Industrial
-          "mixed", // Mixto
-          "luxury", // Lujo
-          "rural" // Rural
+          "mixto", // Mixto
+          "lujo", // Lujo
+          "rural", // Rural
         ],
-        default: "residential",
+        default: "residencial",
       },
-      agentCount: {
+      cantidadAgentes: {
         type: Number,
         min: [1, "Debe tener al menos 1 agente"],
         default: 1,
       },
-      licenseNumber: {
+      numeroLicencia: {
         type: String,
         trim: true,
       },
-      website: {
+      sitioWeb: {
         type: String,
         trim: true,
       },
-      address: {
-        street: {
+      direccion: {
+        calle: {
           type: String,
           trim: true,
         },
-        city: {
+        ciudad: {
           type: String,
           trim: true,
         },
-        state: {
+        provincia: {
           type: String,
           trim: true,
         },
-        zipCode: {
+        codigoPostal: {
           type: String,
           trim: true,
         },
-        country: {
+        pais: {
           type: String,
           default: "Argentina",
           trim: true,
         },
       },
     },
-    afipData: {
+    datosAfip: {
       cuit: {
         type: String,
         trim: true,
@@ -168,11 +164,11 @@ const userSchema = new mongoose.Schema(
           "El CUIT debe tener el formato XX-XXXXXXXX-X",
         ],
       },
-      businessName: {
+      razonSocial: {
         type: String,
         trim: true,
       },
-      taxCategory: {
+      categoriaFiscal: {
         type: String,
         enum: [
           "Responsable Inscripto",
@@ -182,117 +178,127 @@ const userSchema = new mongoose.Schema(
           "Consumidor Final",
         ],
       },
-      monotributoCategory: {
+      categoriaMonotributo: {
         type: String,
         enum: ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L"],
       },
-      activityCode: {
+      codigoActividad: {
         type: String,
         trim: true,
       },
-      startDate: {
+      fechaInicio: {
         type: Date,
       },
-      grossIncomeNumber: {
+      numeroIngresosBrutos: {
         type: String,
         trim: true,
       },
     },
-    subscription: {
+    suscripcion: {
       plan: {
         type: String,
         enum: ["mensual", "anual"],
         required: [true, "El plan de suscripción es requerido"],
         default: "mensual",
       },
-      status: {
+      estado: {
         type: String,
-        enum: ["active", "inactive", "suspended", "trial"],
-        default: "trial",
+        enum: ["activo", "inactivo", "suspendido", "prueba"],
+        default: "prueba",
       },
-      startDate: {
+      fechaInicio: {
         type: Date,
         default: Date.now,
       },
-      endDate: {
+      fechaFin: {
         type: Date,
       },
-      trialEndDate: {
+      fechaFinPrueba: {
         type: Date,
         default: () => new Date(Date.now() + 14 * 24 * 60 * 60 * 1000), // 14 días de prueba
       },
-      paymentMethod: {
+      metodoPago: {
         type: String,
-        enum: ["credit_card", "debit_card", "bank_transfer", "mercadopago"],
+        enum: [
+          "tarjeta_credito",
+          "tarjeta_debito",
+          "transferencia_bancaria",
+          "mercadopago",
+        ],
       },
-      lastPayment: {
-        date: Date,
-        amount: Number,
-        currency: {
+      ultimoPago: {
+        fecha: Date,
+        monto: Number,
+        moneda: {
           type: String,
           default: "ARS",
         },
       },
-      nextPayment: {
-        date: Date,
-        amount: Number,
+      proximoPago: {
+        fecha: Date,
+        monto: Number,
       },
     },
-    paymentStatus: {
-      isPaid: {
+    estadoPago: {
+      estaPagado: {
         type: Boolean,
         default: false,
       },
-      lastPaymentDate: {
+      fechaUltimoPago: {
         type: Date,
       },
-      nextDueDate: {
+      proximaFechaVencimiento: {
         type: Date,
       },
-      gracePeriodDays: {
+      diasGracia: {
         type: Number,
         default: 7, // Días de gracia después del vencimiento
       },
-      canAccessSystem: {
+      puedeAccederSistema: {
         type: Boolean,
         default: true, // Permite acceso inicial durante trial
       },
-      paymentHistory: [
+      historialPagos: [
         {
-          paymentId: {
+          idPago: {
             type: String,
             required: true,
           },
-          amount: {
+          monto: {
             type: Number,
             required: true,
           },
-          currency: {
+          moneda: {
             type: String,
             default: "ARS",
           },
-          paymentDate: {
+          fechaPago: {
             type: Date,
             required: true,
           },
-          paymentMethod: {
+          metodoPago: {
             type: String,
-            enum: ["credit_card", "debit_card", "bank_transfer", "mercadopago"],
+            enum: [
+              "tarjeta_credito",
+              "tarjeta_debito",
+              "transferencia_bancaria",
+              "mercadopago",
+            ],
           },
-          status: {
+          estado: {
             type: String,
-            enum: ["pending", "completed", "failed", "refunded"],
-            default: "pending",
+            enum: ["pendiente", "completado", "fallido", "reembolsado"],
+            default: "pendiente",
           },
-          description: {
+          descripcion: {
             type: String,
             trim: true,
           },
         },
       ],
-      overdueNotifications: {
-        lastSent: Date,
-        count: {
+      notificacionesVencimiento: {
+        ultimoEnvio: Date,
+        contador: {
           type: Number,
           default: 0,
         },
@@ -307,29 +313,33 @@ const userSchema = new mongoose.Schema(
 // Middleware para hashear la contraseña antes de guardar
 userSchema.pre("save", async function (next) {
   // Solo hashear la contraseña si ha sido modificada
-  if (!this.isModified("password")) {
+  if (!this.isModified("contraseña")) {
     next();
   }
 
   const salt = await bcrypt.genSalt(12);
-  this.password = await bcrypt.hash(this.password, salt);
+  this.contraseña = await bcrypt.hash(this.contraseña, salt);
   next();
 });
 
 // Middleware para generar slug automáticamente
 userSchema.pre("save", async function (next) {
   // Generar slug si no existe y hay nombre de empresa
-  if (this.company.name && !this.company.slug) {
+  if (this.empresa.nombre && !this.empresa.slug) {
     this.generateSlug();
-    
+
     // Verificar si el slug ya existe y agregar número si es necesario
-    let slugExists = await this.constructor.findOne({ "company.slug": this.company.slug });
+    let slugExists = await this.constructor.findOne({
+      "empresa.slug": this.empresa.slug,
+    });
     let counter = 1;
-    let originalSlug = this.company.slug;
-    
+    let originalSlug = this.empresa.slug;
+
     while (slugExists && slugExists._id.toString() !== this._id.toString()) {
-      this.company.slug = `${originalSlug}-${counter}`;
-      slugExists = await this.constructor.findOne({ "company.slug": this.company.slug });
+      this.empresa.slug = `${originalSlug}-${counter}`;
+      slugExists = await this.constructor.findOne({
+        "empresa.slug": this.empresa.slug,
+      });
       counter++;
     }
   }
@@ -338,50 +348,50 @@ userSchema.pre("save", async function (next) {
 
 // Método para comparar contraseñas
 userSchema.methods.matchPassword = async function (enteredPassword) {
-  return await bcrypt.compare(enteredPassword, this.password);
+  return await bcrypt.compare(enteredPassword, this.contraseña);
 };
 
 // Método para generar slug automáticamente
 userSchema.methods.generateSlug = function () {
-  if (!this.company.slug && this.company.name) {
-    let baseSlug = this.company.name
+  if (!this.empresa.slug && this.empresa.nombre) {
+    let baseSlug = this.empresa.nombre
       .toLowerCase()
-      .replace(/[^a-z0-9\s-]/g, '') // Remover caracteres especiales
-      .replace(/\s+/g, '-') // Reemplazar espacios con guiones
-      .replace(/-+/g, '-') // Reemplazar múltiples guiones con uno solo
-      .trim('-'); // Remover guiones al inicio y final
-    
-    this.company.slug = baseSlug;
+      .replace(/[^a-z0-9\s-]/g, "") // Remover caracteres especiales
+      .replace(/\s+/g, "-") // Reemplazar espacios con guiones
+      .replace(/-+/g, "-") // Reemplazar múltiples guiones con uno solo
+      .trim("-"); // Remover guiones al inicio y final
+
+    this.empresa.slug = baseSlug;
   }
-  return this.company.slug;
+  return this.empresa.slug;
 };
 
 // Método para obtener datos públicos del usuario
 userSchema.methods.getPublicProfile = function () {
   const userObject = this.toObject();
-  delete userObject.password;
-  delete userObject.resetPasswordToken;
-  delete userObject.resetPasswordExpire;
-  delete userObject.emailVerificationToken;
+  delete userObject.contraseña;
+  delete userObject.tokenRestablecerContraseña;
+  delete userObject.expiraRestablecerContraseña;
+  delete userObject.tokenVerificacionEmail;
   return userObject;
 };
 
 // Método para verificar si la suscripción está activa
 userSchema.methods.isSubscriptionActive = function () {
-  if (this.subscription.status === "trial") {
-    return new Date() <= this.subscription.trialEndDate;
+  if (this.suscripcion.estado === "prueba") {
+    return new Date() <= this.suscripcion.fechaFinPrueba;
   }
   return (
-    this.subscription.status === "active" &&
-    new Date() <= this.subscription.endDate
+    this.suscripcion.estado === "activo" &&
+    new Date() <= this.suscripcion.fechaFin
   );
 };
 
 // Método para obtener días restantes de prueba
 userSchema.methods.getTrialDaysRemaining = function () {
-  if (this.subscription.status !== "trial") return 0;
+  if (this.suscripcion.estado !== "prueba") return 0;
   const now = new Date();
-  const trialEnd = this.subscription.trialEndDate;
+  const trialEnd = this.suscripcion.fechaFinPrueba;
   const diffTime = trialEnd - now;
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   return Math.max(0, diffDays);
@@ -390,13 +400,13 @@ userSchema.methods.getTrialDaysRemaining = function () {
 // Método para verificar si puede acceder al sistema
 userSchema.methods.canAccessSystem = function () {
   // Si está en trial y no ha vencido
-  if (this.subscription.status === "trial") {
-    return new Date() <= this.subscription.trialEndDate;
+  if (this.suscripcion.estado === "prueba") {
+    return new Date() <= this.suscripcion.fechaFinPrueba;
   }
 
   // Si tiene suscripción activa y está al día con los pagos
-  if (this.subscription.status === "active") {
-    return this.paymentStatus.canAccessSystem && this.paymentStatus.isPaid;
+  if (this.suscripcion.estado === "activo") {
+    return this.estadoPago.puedeAccederSistema && this.estadoPago.estaPagado;
   }
 
   return false;
@@ -404,62 +414,62 @@ userSchema.methods.canAccessSystem = function () {
 
 // Método para verificar si el pago está vencido
 userSchema.methods.isPaymentOverdue = function () {
-  if (!this.paymentStatus.nextDueDate) return false;
+  if (!this.estadoPago.proximaFechaVencimiento) return false;
   const now = new Date();
-  const dueDate = new Date(this.paymentStatus.nextDueDate);
+  const dueDate = new Date(this.estadoPago.proximaFechaVencimiento);
   const gracePeriodEnd = new Date(
-    dueDate.getTime() + this.paymentStatus.gracePeriodDays * 24 * 60 * 60 * 1000
+    dueDate.getTime() + this.estadoPago.diasGracia * 24 * 60 * 60 * 1000
   );
   return now > gracePeriodEnd;
 };
 
 // Método para registrar un nuevo pago
 userSchema.methods.addPayment = function (paymentData) {
-  this.paymentStatus.paymentHistory.push({
-    paymentId: paymentData.paymentId,
-    amount: paymentData.amount,
-    currency: paymentData.currency || "ARS",
-    paymentDate: paymentData.paymentDate || new Date(),
-    paymentMethod: paymentData.paymentMethod,
-    status: paymentData.status || "completed",
-    description: paymentData.description,
+  this.estadoPago.historialPagos.push({
+    idPago: paymentData.idPago,
+    monto: paymentData.monto,
+    moneda: paymentData.moneda || "ARS",
+    fechaPago: paymentData.fechaPago || new Date(),
+    metodoPago: paymentData.metodoPago,
+    estado: paymentData.estado || "completado",
+    descripcion: paymentData.descripcion,
   });
 
-  if (paymentData.status === "completed") {
-    this.paymentStatus.isPaid = true;
-    this.paymentStatus.lastPaymentDate = paymentData.paymentDate || new Date();
-    this.paymentStatus.canAccessSystem = true;
+  if (paymentData.estado === "completado") {
+    this.estadoPago.estaPagado = true;
+    this.estadoPago.fechaUltimoPago = paymentData.fechaPago || new Date();
+    this.estadoPago.puedeAccederSistema = true;
 
     // Calcular próxima fecha de vencimiento
     const nextDue = new Date();
-    if (this.subscription.plan === "mensual") {
+    if (this.suscripcion.plan === "mensual") {
       nextDue.setMonth(nextDue.getMonth() + 1);
-    } else if (this.subscription.plan === "anual") {
+    } else if (this.suscripcion.plan === "anual") {
       nextDue.setFullYear(nextDue.getFullYear() + 1);
     }
-    this.paymentStatus.nextDueDate = nextDue;
+    this.estadoPago.proximaFechaVencimiento = nextDue;
   }
 };
 
 // Método para suspender acceso por falta de pago
 userSchema.methods.suspendForNonPayment = function () {
-  this.paymentStatus.canAccessSystem = false;
-  this.paymentStatus.isPaid = false;
-  this.subscription.status = "suspended";
+  this.estadoPago.puedeAccederSistema = false;
+  this.estadoPago.estaPagado = false;
+  this.suscripcion.estado = "suspendido";
 };
 
 // Índices para mejorar el rendimiento
 userSchema.index({ email: 1 });
-userSchema.index({ role: 1 });
-userSchema.index({ isActive: 1 });
-userSchema.index({ "company.id": 1 });
-// userSchema.index({ "afipData.cuit": 1 });
-userSchema.index({ "subscription.status": 1 });
-userSchema.index({ "subscription.plan": 1 });
-userSchema.index({ "paymentStatus.isPaid": 1 });
-userSchema.index({ "paymentStatus.canAccessSystem": 1 });
-userSchema.index({ "paymentStatus.nextDueDate": 1 });
-userSchema.index({ "paymentStatus.paymentHistory.status": 1 });
+userSchema.index({ rol: 1 });
+userSchema.index({ estaActivo: 1 });
+userSchema.index({ "empresa.id": 1 });
+userSchema.index({ "empresa.slug": 1 });
+userSchema.index({ "suscripcion.estado": 1 });
+userSchema.index({ "suscripcion.plan": 1 });
+userSchema.index({ "estadoPago.estaPagado": 1 });
+userSchema.index({ "estadoPago.puedeAccederSistema": 1 });
+userSchema.index({ "estadoPago.proximaFechaVencimiento": 1 });
+userSchema.index({ "estadoPago.historialPagos.estado": 1 });
 
 const User = mongoose.model("User", userSchema);
 
